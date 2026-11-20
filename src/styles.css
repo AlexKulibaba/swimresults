@@ -368,3 +368,22 @@ button.primary {
 .swim__badge--possible {
   background: var(--muted);
 }
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.compare__swim {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+
+.compare__time {
+  font-size: 1.5rem;
+}

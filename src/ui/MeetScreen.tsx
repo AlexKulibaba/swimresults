@@ -1,9 +1,11 @@
 import { useState } from "react";
-import type { Meet } from "../meet";
+import type { Meet, SwimRef } from "../meet";
 import { ClubScheduleView } from "./ClubScheduleView";
+import { ComparisonView } from "./ComparisonView";
 import { HomeView } from "./HomeView";
 import { MeetSearch } from "./MeetSearch";
 import { MeetSummaryView } from "./MeetSummaryView";
+import { PickComparisonView } from "./PickComparisonView";
 import { SwimDetailView } from "./SwimDetailView";
 import { SwimmerScheduleView } from "./SwimmerScheduleView";
 import { useMeetClock } from "./useMeetClock";
@@ -11,7 +13,9 @@ import { useMeetClock } from "./useMeetClock";
 type View =
   | { kind: "swimmer"; swimmerId: string }
   | { kind: "club"; clubName: string }
-  | { kind: "swim"; swimmerId: string; eventId: string };
+  | { kind: "swim"; swimmerId: string; eventId: string }
+  | { kind: "pick-comparison"; first: SwimRef }
+  | { kind: "comparison"; first: SwimRef; second: SwimRef };
 
 interface Props {
   meet: Meet;
@@ -69,8 +73,23 @@ export function MeetScreen({ meet, onRemove }: Props) {
         />
       )}
       {view.kind === "swim" && (
-        <SwimDetailView meet={meet} swimmerId={view.swimmerId} eventId={view.eventId} onOpenSwimmer={openSwimmer} />
+        <SwimDetailView
+          meet={meet}
+          swimmerId={view.swimmerId}
+          eventId={view.eventId}
+          onOpenSwimmer={openSwimmer}
+          onCompare={() => go({ kind: "pick-comparison", first: { swimmerId: view.swimmerId, eventId: view.eventId } })}
+        />
       )}
+      {view.kind === "pick-comparison" && (
+        <PickComparisonView
+          meet={meet}
+          clock={clock}
+          first={view.first}
+          onPick={(second) => go({ kind: "comparison", first: view.first, second })}
+        />
+      )}
+      {view.kind === "comparison" && <ComparisonView meet={meet} first={view.first} second={view.second} />}
     </div>
   );
 }
