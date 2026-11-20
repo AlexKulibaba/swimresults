@@ -244,3 +244,19 @@ header p {
 .swim__status {
   color: var(--error);
 }
+
+.link {
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.swim__swimmer {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}

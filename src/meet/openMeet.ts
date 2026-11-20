@@ -77,6 +77,7 @@ function readMeet(bytes: Uint8Array): Meet {
       firstDay: days[0]!,
       lastDay: days[days.length - 1]!,
     },
+    clubs: clubs.map((club) => ({ name: club.name })),
     swimmers: clubs.flatMap(readSwimmers),
     sessions,
     events,

@@ -1,9 +1,12 @@
 import { useState } from "react";
 import type { Meet } from "../meet";
+import { ClubScheduleView } from "./ClubScheduleView";
+import { MeetSearch } from "./MeetSearch";
 import { MeetSummaryView } from "./MeetSummaryView";
 import { SwimmerScheduleView } from "./SwimmerScheduleView";
-import { SwimmerSearch } from "./SwimmerSearch";
 import { useMeetClock } from "./useMeetClock";
+
+type View = { kind: "swimmer"; swimmerId: string } | { kind: "club"; clubName: string };
 
 interface Props {
   meet: Meet;
@@ -12,16 +15,33 @@ interface Props {
 
 export function MeetScreen({ meet, onRemove }: Props) {
   const clock = useMeetClock();
-  const [swimmerId, setSwimmerId] = useState<string | null>(null);
+  // Pages opened from the search, most recent last; "Zurück" goes one step back.
+  const [history, setHistory] = useState<View[]>([]);
+  const view = history.at(-1);
 
-  if (swimmerId) {
-    return <SwimmerScheduleView meet={meet} swimmerId={swimmerId} clock={clock} onBack={() => setSwimmerId(null)} />;
+  const go = (next: View) => setHistory((views) => [...views, next]);
+  const openSwimmer = (swimmerId: string) => go({ kind: "swimmer", swimmerId });
+  const openClub = (clubName: string) => go({ kind: "club", clubName });
+
+  if (!view) {
+    return (
+      <div className="stack">
+        <MeetSummaryView summary={meet.summary} onRemove={onRemove} />
+        <MeetSearch meet={meet} onOpenSwimmer={openSwimmer} onOpenClub={openClub} />
+      </div>
+    );
   }
 
   return (
     <div className="stack">
-      <MeetSummaryView summary={meet.summary} onRemove={onRemove} />
-      <SwimmerSearch meet={meet} onSelect={setSwimmerId} />
+      <button type="button" className="back" onClick={() => setHistory((views) => views.slice(0, -1))}>
+        ← Zurück
+      </button>
+      {view.kind === "swimmer" ? (
+        <SwimmerScheduleView meet={meet} swimmerId={view.swimmerId} clock={clock} onOpenClub={openClub} />
+      ) : (
+        <ClubScheduleView meet={meet} clubName={view.clubName} clock={clock} onOpenSwimmer={openSwimmer} />
+      )}
     </div>
   );
 }

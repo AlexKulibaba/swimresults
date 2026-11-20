@@ -27,6 +27,11 @@ export interface Swimmer {
   club: string;
 }
 
+export interface Club {
+  /** Clubs are identified by name. */
+  name: string;
+}
+
 export interface Session {
   number: number;
   /** ISO date. */
@@ -71,6 +76,7 @@ export interface SwimRecord {
 
 export interface Meet {
   summary: MeetSummary;
+  clubs: Club[];
   swimmers: Swimmer[];
   sessions: Session[];
   events: MeetEvent[];

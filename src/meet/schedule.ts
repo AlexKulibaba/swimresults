@@ -36,10 +36,20 @@ export interface SwimmerSchedule {
 export function swimmerSchedule(meet: Meet, swimmerId: string, clock: MeetClock): SwimmerSchedule | null {
   const swimmer = meet.swimmers.find((candidate) => candidate.id === swimmerId);
   if (!swimmer) return null;
+  return { swimmer, swims: scheduleOf(meet, swimmerId, clock).map(({ swim }) => swim) };
+}
 
+/** A scheduled swim with the event's position in its session, for ordering swims of different swimmers. */
+export interface OrderedSwim {
+  eventOrder: number;
+  swim: ScheduledSwim;
+}
+
+/** One swimmer's swims in start order, with their phase relative to the clock. */
+export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): OrderedSwim[] {
   const swims = meet.swims
     .filter((swim) => swim.swimmerId === swimmerId)
-    .flatMap((swim) => {
+    .flatMap((swim): OrderedSwim[] => {
       const event = meet.events.find((candidate) => candidate.id === swim.eventId);
       const session = meet.sessions.find((candidate) => candidate.number === event?.session);
       if (!event || !session) return [];
@@ -48,7 +58,7 @@ export function swimmerSchedule(meet: Meet, swimmerId: string, clock: MeetClock)
 
       return [
         {
-          order: event.order,
+          eventOrder: event.order,
           swim: {
             session: session.number,
             eventNumber: event.number,
@@ -63,30 +73,28 @@ export function swimmerSchedule(meet: Meet, swimmerId: string, clock: MeetClock)
             status: swim.status,
             entryTime: event.round === "FIN" ? null : swim.entryTime,
             swimTime: swim.swimTime,
-            phase: "later" as SwimPhase,
+            phase: startOf(session.date, time) < clock ? "done" : "later",
           },
         },
       ];
     })
-    .sort(
-      (a, b) =>
-        a.swim.date.localeCompare(b.swim.date) ||
-        a.swim.session - b.swim.session ||
-        a.order - b.order ||
-        (a.swim.heat ?? 0) - (b.swim.heat ?? 0),
-    )
-    .map(({ swim }) => swim);
+    .sort(byStartOrder);
 
-  for (const swim of swims) {
-    if (startOf(swim) < clock) swim.phase = "done";
-  }
-  const next = swims.find((swim) => swim.phase === "later" && swim.status === null);
-  if (next) next.phase = "next";
+  const next = swims.find(({ swim }) => swim.phase === "later" && swim.status === null);
+  if (next) next.swim.phase = "next";
+  return swims;
+}
 
-  return { swimmer, swims };
+export function byStartOrder(a: OrderedSwim, b: OrderedSwim): number {
+  return (
+    a.swim.date.localeCompare(b.swim.date) ||
+    a.swim.session - b.swim.session ||
+    a.eventOrder - b.eventOrder ||
+    (a.swim.heat ?? 0) - (b.swim.heat ?? 0)
+  );
 }
 
 /** Comparable with a MeetClock; a swim without a time counts from the start of its day. */
-function startOf(swim: ScheduledSwim): MeetClock {
-  return `${swim.date}T${swim.time ?? "00:00"}`;
+function startOf(date: string, time: string | null): MeetClock {
+  return `${date}T${time ?? "00:00"}`;
 }
