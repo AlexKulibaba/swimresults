@@ -1,4 +1,5 @@
-import { clubSchedule, type Meet, type MeetClock, type SwimmerSwim } from "../meet";
+import { clubSchedule, swimmerKey, type Meet, type MeetClock, type SwimmerSwim } from "../meet";
+import { useFollows } from "./follows";
 import { ClubFollowButton } from "./FollowButtons";
 import { SwimCard } from "./SwimCard";
 
@@ -41,6 +42,9 @@ function ClubSwims({
   onOpenSwimmer: (swimmerId: string) => void;
   onOpenSwim: (swimmerId: string, eventId: string) => void;
 }) {
+  const { follows } = useFollows();
+  const isMeOrFollowed = (key: string) => follows.me === key || follows.swimmers.includes(key);
+
   return (
     <section className="stack">
       <h2>{title}</h2>
@@ -53,6 +57,7 @@ function ClubSwims({
               key={`${swim.swimmer.id}-${swim.eventId}`}
               swim={swim}
               swimmer={swim.swimmer}
+              showEntryRank={isMeOrFollowed(swimmerKey(swim.swimmer))}
               onOpenSwimmer={onOpenSwimmer}
               onOpenDetail={() => onOpenSwim(swim.swimmer.id, swim.eventId)}
             />

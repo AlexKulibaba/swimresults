@@ -1,5 +1,5 @@
 import type { ScheduledSwim, Swimmer } from "../meet";
-import { formatDay, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { formatDay, formatEntryRank, formatSwimTime, roundLabel, statusLabel } from "./format";
 
 interface Props {
   swim: ScheduledSwim;
@@ -7,12 +7,14 @@ interface Props {
   swimmer?: Swimmer;
   /** For swimmers starting for several clubs: shows which club this swim is for. */
   showClub?: boolean;
+  /** Entry ranks show in detail views, and in lists only for "me" and followed swimmers. */
+  showEntryRank?: boolean;
   onOpenSwimmer?: (swimmerId: string) => void;
   /** Opens the detail of a completed swim. */
   onOpenDetail?: () => void;
 }
 
-export function SwimCard({ swim, swimmer, showClub, onOpenSwimmer, onOpenDetail }: Props) {
+export function SwimCard({ swim, swimmer, showClub, showEntryRank, onOpenSwimmer, onOpenDetail }: Props) {
   const completed = swim.phase === "done" && (swim.status !== null || swim.swimTime !== null);
   return (
     <li className={`swim swim--${swim.phase}`}>
@@ -61,6 +63,12 @@ export function SwimCard({ swim, swimmer, showClub, onOpenSwimmer, onOpenDetail 
           </div>
         )}
       </dl>
+      {showEntryRank && swim.entryRank && (
+        <div className="swim__rank">
+          <span className="muted">Rang nach Meldezeit: </span>
+          {formatEntryRank(swim.entryRank)}
+        </div>
+      )}
       {swim.phase !== "done" && swim.status && <div className="swim__status">{statusLabel(swim.status)}</div>}
       {completed && onOpenDetail && (
         <button type="button" className="link swim__more" onClick={onOpenDetail}>

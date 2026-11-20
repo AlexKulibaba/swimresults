@@ -1,4 +1,4 @@
-import type { Round, SwimStatus } from "../meet";
+import type { EntryRank, Round, SwimStatus } from "../meet";
 
 const roundLabels: Record<string, string> = {
   PRE: "Vorlauf",
@@ -45,4 +45,10 @@ export function formatDifference(hundredths: number): string {
 /** 61 → "+0.61 s", -3 → "−0.03 s" */
 export function formatReactionTime(hundredths: number): string {
   return `${formatDifference(hundredths)} s`;
+}
+
+/** "3. von 12 im Jahrgang 2010 · 18. von 64 gesamt" */
+export function formatEntryRank({ jahrgang, overall }: EntryRank): string {
+  const inJahrgang = jahrgang ? `${jahrgang.rank}. von ${jahrgang.of} im Jahrgang ${jahrgang.jahrgang} · ` : "";
+  return `${inJahrgang}${overall.rank}. von ${overall.of} gesamt`;
 }
