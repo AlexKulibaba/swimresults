@@ -1,0 +1,5 @@
+# Ignore raw LENEX sample archives to prevent accidental publishing/redistribution
+*.lxf
+*.lef
+*.xml
+*.zip
