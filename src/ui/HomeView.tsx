@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { homePage, type Meet, type MeetClock } from "../meet";
+import { homePage, swimmerKey, type Meet, type MeetClock } from "../meet";
 import { useFollows } from "./follows";
 import { SwimCard } from "./SwimCard";
 
@@ -38,6 +38,7 @@ export function HomeView({ meet, clock, onOpenSwimmer, onOpenSwim, search }: Pro
                   key={swim.eventId}
                   swim={swim}
                   showClub={home.me!.swimmer.clubs.length > 1}
+                  showEntryRank
                   onOpenDetail={() => onOpenSwim(swim.swimmer.id, swim.eventId)}
                 />
               ))}
@@ -58,6 +59,7 @@ export function HomeView({ meet, clock, onOpenSwimmer, onOpenSwim, search }: Pro
                   key={`${swim.swimmer.id}-${swim.eventId}`}
                   swim={swim}
                   swimmer={swim.swimmer}
+                  showEntryRank={follows.swimmers.includes(swimmerKey(swim.swimmer))}
                   onOpenSwimmer={onOpenSwimmer}
                   onOpenDetail={() => onOpenSwim(swim.swimmer.id, swim.eventId)}
                 />

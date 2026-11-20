@@ -1,3 +1,4 @@
+import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, Place, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
 
 /** The time between two measured distances of a swim. */
@@ -27,6 +28,8 @@ export interface SwimDetail {
   entryTime: number | null;
   /** Hundredths of a second; negative when faster than the entry time. */
   differenceFromEntryTime: number | null;
+  /** Where the entry time ranked; null for finals and entries without a time. */
+  entryRank: EntryRank | null;
   reactionTime: number | null;
   /** Measured distances up to the finish, in order. */
   splits: SplitSegment[];
@@ -53,6 +56,7 @@ export function swimDetail(meet: Meet, swimmerId: string, eventId: string): Swim
     places: valid ? swim.places : [],
     entryTime,
     differenceFromEntryTime: swimTime !== null && entryTime !== null ? swimTime - entryTime : null,
+    entryRank: entryRank(meet, swim),
     reactionTime: swim.reactionTime,
     splits: valid && swimTime !== null ? segments(swim, event.distance, swimTime) : [],
   };
