@@ -56,9 +56,28 @@ export interface MeetEvent {
   session: number;
   name: string;
   round: Round;
+  /** LENEX gender code: "F", "M" or "X". */
+  gender: string;
+  /** LENEX stroke code, e.g. "FREE" or "MEDLEY". */
+  stroke: string;
+  /** Metres. */
+  distance: number;
   /** Scheduled start, "HH:MM". */
   daytime: string | null;
   heats: Heat[];
+}
+
+/** A cumulative time at a measured distance. */
+export interface Split {
+  distance: number;
+  /** Hundredths of a second. */
+  time: number;
+}
+
+/** The meet's own place for a swim in one of its scoring groups. */
+export interface Place {
+  group: string;
+  place: number;
 }
 
 /** One swimmer's appearance in one event, merged from the entry and the result. */
@@ -72,6 +91,11 @@ export interface SwimRecord {
   entryTime: number | null;
   /** Hundredths of a second. */
   swimTime: number | null;
+  /** Hundredths of a second; negative for a start before the signal. */
+  reactionTime: number | null;
+  /** Measured splits in file order. */
+  splits: Split[];
+  places: Place[];
 }
 
 export interface Meet {

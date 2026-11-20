@@ -6,9 +6,10 @@ interface Props {
   clubName: string;
   clock: MeetClock;
   onOpenSwimmer: (swimmerId: string) => void;
+  onOpenSwim: (swimmerId: string, eventId: string) => void;
 }
 
-export function ClubScheduleView({ meet, clubName, clock, onOpenSwimmer }: Props) {
+export function ClubScheduleView({ meet, clubName, clock, onOpenSwimmer, onOpenSwim }: Props) {
   const schedule = clubSchedule(meet, clubName, clock);
   if (!schedule) return <p className="error">Verein nicht gefunden.</p>;
 
@@ -19,8 +20,8 @@ export function ClubScheduleView({ meet, clubName, clock, onOpenSwimmer }: Props
         <h1>{club.name}</h1>
         <p className="muted">{club.swimmerCount === 1 ? "1 Schwimmer" : `${club.swimmerCount} Schwimmer`}</p>
       </header>
-      <ClubSwims title="Nächste Starts" empty="Keine weiteren Starts." swims={upcoming} onOpenSwimmer={onOpenSwimmer} />
-      <ClubSwims title="Beendet" empty="Noch keine Starts beendet." swims={completed} onOpenSwimmer={onOpenSwimmer} />
+      <ClubSwims title="Nächste Starts" empty="Keine weiteren Starts." swims={upcoming} {...{ onOpenSwimmer, onOpenSwim }} />
+      <ClubSwims title="Beendet" empty="Noch keine Starts beendet." swims={completed} {...{ onOpenSwimmer, onOpenSwim }} />
     </section>
   );
 }
@@ -30,11 +31,13 @@ function ClubSwims({
   empty,
   swims,
   onOpenSwimmer,
+  onOpenSwim,
 }: {
   title: string;
   empty: string;
   swims: ClubSwim[];
   onOpenSwimmer: (swimmerId: string) => void;
+  onOpenSwim: (swimmerId: string, eventId: string) => void;
 }) {
   return (
     <section className="stack">
@@ -45,10 +48,11 @@ function ClubSwims({
         <ol className="swims">
           {swims.map((swim) => (
             <SwimCard
-              key={`${swim.swimmer.id}-${swim.session}-${swim.eventNumber}`}
+              key={`${swim.swimmer.id}-${swim.eventId}`}
               swim={swim}
               swimmer={swim.swimmer}
               onOpenSwimmer={onOpenSwimmer}
+              onOpenDetail={() => onOpenSwim(swim.swimmer.id, swim.eventId)}
             />
           ))}
         </ol>

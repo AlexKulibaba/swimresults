@@ -35,3 +35,14 @@ const dayFormat = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-d
 export function formatDay(isoDate: string): string {
   return dayFormat.format(new Date(isoDate));
 }
+
+/** -123 → "−1.23", 18 → "+0.18", 6233 → "+1:02.33" */
+export function formatDifference(hundredths: number): string {
+  const sign = hundredths < 0 ? "−" : "+";
+  return `${sign}${formatSwimTime(Math.abs(hundredths))}`;
+}
+
+/** 61 → "+0.61 s", -3 → "−0.03 s" */
+export function formatReactionTime(hundredths: number): string {
+  return `${formatDifference(hundredths)} s`;
+}

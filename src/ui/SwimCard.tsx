@@ -6,9 +6,12 @@ interface Props {
   /** Shown on lists with several swimmers, e.g. a club page. */
   swimmer?: Swimmer;
   onOpenSwimmer?: (swimmerId: string) => void;
+  /** Opens the detail of a completed swim. */
+  onOpenDetail?: () => void;
 }
 
-export function SwimCard({ swim, swimmer, onOpenSwimmer }: Props) {
+export function SwimCard({ swim, swimmer, onOpenSwimmer, onOpenDetail }: Props) {
+  const completed = swim.phase === "done" && (swim.status !== null || swim.swimTime !== null);
   return (
     <li className={`swim swim--${swim.phase}`}>
       {swim.phase === "next" && !swimmer && <span className="swim__badge">Nächster Start</span>}
@@ -46,7 +49,7 @@ export function SwimCard({ swim, swimmer, onOpenSwimmer }: Props) {
             <dd>{formatSwimTime(swim.entryTime)}</dd>
           </div>
         )}
-        {swim.phase === "done" && (swim.status || swim.swimTime) && (
+        {completed && (
           <div>
             <dt>Ergebnis</dt>
             <dd className={swim.status ? "swim__status" : undefined}>
@@ -56,6 +59,11 @@ export function SwimCard({ swim, swimmer, onOpenSwimmer }: Props) {
         )}
       </dl>
       {swim.phase !== "done" && swim.status && <div className="swim__status">{statusLabel(swim.status)}</div>}
+      {completed && onOpenDetail && (
+        <button type="button" className="link swim__more" onClick={onOpenDetail}>
+          Details →
+        </button>
+      )}
     </li>
   );
 }

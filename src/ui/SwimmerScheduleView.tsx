@@ -6,9 +6,10 @@ interface Props {
   swimmerId: string;
   clock: MeetClock;
   onOpenClub: (clubName: string) => void;
+  onOpenSwim: (swimmerId: string, eventId: string) => void;
 }
 
-export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub }: Props) {
+export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub, onOpenSwim }: Props) {
   const schedule = swimmerSchedule(meet, swimmerId, clock);
   if (!schedule) return <p className="error">Schwimmer nicht gefunden.</p>;
 
@@ -31,7 +32,7 @@ export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub }: Prop
       ) : (
         <ol className="swims">
           {swims.map((swim) => (
-            <SwimCard key={`${swim.session}-${swim.eventNumber}`} swim={swim} />
+            <SwimCard key={swim.eventId} swim={swim} onOpenDetail={() => onOpenSwim(swimmer.id, swim.eventId)} />
           ))}
         </ol>
       )}
