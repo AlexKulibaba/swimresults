@@ -360,3 +360,11 @@ button.primary {
   margin-top: 0.5rem;
   font-size: 0.9rem;
 }
+
+.swim--possible {
+  border-style: dashed;
+}
+
+.swim__badge--possible {
+  background: var(--muted);
+}

@@ -17,7 +17,7 @@ interface Props {
 export function SwimCard({ swim, swimmer, showClub, showEntryRank, onOpenSwimmer, onOpenDetail }: Props) {
   const completed = swim.phase === "done" && (swim.status !== null || swim.swimTime !== null);
   return (
-    <li className={`swim swim--${swim.phase}`}>
+    <li className={`swim swim--${swim.phase}${swim.ifQualified ? " swim--possible" : ""}`}>
       {swim.phase === "next" && !swimmer && <span className="swim__badge">Nächster Start</span>}
       {swimmer && (
         <button type="button" className="link swim__swimmer" onClick={() => onOpenSwimmer?.(swimmer.id)}>
@@ -25,6 +25,7 @@ export function SwimCard({ swim, swimmer, showClub, showEntryRank, onOpenSwimmer
           {swimmer.jahrgang && <span className="muted"> · {swimmer.jahrgang}</span>}
         </button>
       )}
+      {swim.ifQualified && <span className="swim__badge swim__badge--possible">bei Qualifikation</span>}
       <div className="swim__title">
         Wk {swim.eventNumber} · {swim.eventName}
       </div>
@@ -40,14 +41,18 @@ export function SwimCard({ swim, swimmer, showClub, showEntryRank, onOpenSwimmer
             {swim.time && `, ${swim.timeApproximate ? "ca. " : ""}${swim.time} Uhr`}
           </dd>
         </div>
-        <div>
-          <dt>Lauf</dt>
-          <dd>{swim.heat ? `${swim.heat} von ${swim.heatCount}` : "–"}</dd>
-        </div>
-        <div>
-          <dt>Bahn</dt>
-          <dd>{swim.lane ?? "nicht zugeteilt"}</dd>
-        </div>
+        {!swim.ifQualified && (
+          <>
+            <div>
+              <dt>Lauf</dt>
+              <dd>{swim.heat ? `${swim.heat} von ${swim.heatCount}` : "–"}</dd>
+            </div>
+            <div>
+              <dt>Bahn</dt>
+              <dd>{swim.lane ?? "nicht zugeteilt"}</dd>
+            </div>
+          </>
+        )}
         {swim.entryTime !== null && (
           <div>
             <dt>Meldezeit</dt>
