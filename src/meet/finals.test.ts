@@ -9,6 +9,8 @@ function open(bytes: Uint8Array): Meet {
   return result.meet;
 }
 
+const afterEverything = "2100-01-01T00:00";
+
 const event = (id: string, number: string, order: number, round: string, name: string, stroke: string, heats: string[]) => `
   <EVENT eventid="${id}" number="${number}" gender="F" round="${round}" order="${order}">
     <SWIMSTYLE name="${name}" stroke="${stroke}" relaycount="1" distance="50" />
@@ -92,11 +94,11 @@ describe("finals in a swimmer's schedule", () => {
 
 describe("the detail of a final", () => {
   test("also shows the difference from the swimmer's own prelim", () => {
-    expect(swimDetail(meet, "1", "11")).toMatchObject({ prelimTime: 2750, differenceFromPrelim: -30 });
+    expect(swimDetail(meet, "1", "11", afterEverything)).toMatchObject({ prelimTime: 2750, differenceFromPrelim: -30 });
   });
 
   test("a prelim has no prelim to compare with", () => {
-    expect(swimDetail(meet, "1", "10")).toMatchObject({ prelimTime: null, differenceFromPrelim: null });
+    expect(swimDetail(meet, "1", "10", afterEverything)).toMatchObject({ prelimTime: null, differenceFromPrelim: null });
   });
 });
 
@@ -128,6 +130,6 @@ describe.skipIf(!existsSync(dkm))("A- and B-finals in the DKM sample (local only
   });
 
   test("the A-final detail compares with the prelim", () => {
-    expect(swimDetail(sample!, "264", "14")).toMatchObject({ prelimTime: 13510, differenceFromPrelim: 371 });
+    expect(swimDetail(sample!, "264", "14", afterEverything)).toMatchObject({ prelimTime: 13510, differenceFromPrelim: 371 });
   });
 });

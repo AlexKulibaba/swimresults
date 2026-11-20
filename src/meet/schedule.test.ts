@@ -186,7 +186,7 @@ describe("swims without a lane or without a valid time", () => {
   );
 
   test("a missing lane or heat stays empty rather than guessed, and swim statuses are kept", () => {
-    expect(swimmerSchedule(meet, "1", beforeTheMeet)?.swims).toMatchObject([
+    expect(swimmerSchedule(meet, "1", "2026-11-13T00:00")?.swims).toMatchObject([
       { eventNumber: 1, heat: 1, lane: null, status: null },
       { eventNumber: 2, heat: 1, lane: 4, status: "DNS" },
       { eventNumber: 3, heat: 1, lane: 2, status: "DSQ" },

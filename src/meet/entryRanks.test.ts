@@ -9,6 +9,8 @@ function open(bytes: Uint8Array): Meet {
   return result.meet;
 }
 
+const afterEverything = "2100-01-01T00:00";
+
 const athlete = (id: string, jahrgang: number, entries: string, results = "") => `
   <ATHLETE athleteid="${id}" firstname="S${id}" lastname="Test" birthdate="${jahrgang}-01-01" gender="F">
     <ENTRIES>${entries}</ENTRIES><RESULTS>${results}</RESULTS>
@@ -73,7 +75,7 @@ describe("entry ranks", () => {
   });
 
   test("the swim detail shows the entry rank too", () => {
-    expect(swimDetail(meet, "1", "10")?.entryRank).toEqual(rankOf("1"));
+    expect(swimDetail(meet, "1", "10", afterEverything)?.entryRank).toEqual(rankOf("1"));
   });
 });
 

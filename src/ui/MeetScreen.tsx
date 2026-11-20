@@ -1,11 +1,12 @@
 import { useState } from "react";
-import type { Meet, SwimRef } from "../meet";
+import type { Meet, MeetClock, SwimRef } from "../meet";
 import { ClubScheduleView } from "./ClubScheduleView";
 import { ComparisonView } from "./ComparisonView";
 import { HomeView } from "./HomeView";
 import { MeetSearch } from "./MeetSearch";
 import { MeetSummaryView } from "./MeetSummaryView";
 import { PickComparisonView } from "./PickComparisonView";
+import { ReplayBanner, replayStart } from "./Replay";
 import { SwimDetailView } from "./SwimDetailView";
 import { SwimmerScheduleView } from "./SwimmerScheduleView";
 import { useMeetClock } from "./useMeetClock";
@@ -23,7 +24,10 @@ interface Props {
 }
 
 export function MeetScreen({ meet, onRemove }: Props) {
-  const clock = useMeetClock();
+  const realTime = useMeetClock();
+  // A replay sets the meet clock to a past moment; it is deliberately not stored, so every visit starts in real time.
+  const [replay, setReplay] = useState<MeetClock | null>(null);
+  const clock = replay ?? realTime;
   // Pages opened from the search, most recent last; "Zurück" goes one step back.
   const [history, setHistory] = useState<View[]>([]);
   const view = history.at(-1);
@@ -33,9 +37,14 @@ export function MeetScreen({ meet, onRemove }: Props) {
   const openClub = (clubName: string) => go({ kind: "club", clubName });
   const openSwim = (swimmerId: string, eventId: string) => go({ kind: "swim", swimmerId, eventId });
 
+  const banner = replay && (
+    <ReplayBanner meet={meet} replay={replay} onChange={setReplay} onEnd={() => setReplay(null)} />
+  );
+
   if (!view) {
     return (
       <div className="stack">
+        {banner}
         <p className="meet-name">{meet.summary.name}</p>
         <HomeView
           meet={meet}
@@ -44,6 +53,13 @@ export function MeetScreen({ meet, onRemove }: Props) {
           onOpenSwim={openSwim}
           search={<MeetSearch meet={meet} onOpenSwimmer={openSwimmer} onOpenClub={openClub} />}
         />
+        {!replay && (
+          <div className="actions">
+            <button type="button" onClick={() => setReplay(replayStart(meet))}>
+              Wettkampf als Wiederholung ansehen
+            </button>
+          </div>
+        )}
         <MeetSummaryView summary={meet.summary} onRemove={onRemove} />
       </div>
     );
@@ -51,6 +67,7 @@ export function MeetScreen({ meet, onRemove }: Props) {
 
   return (
     <div className="stack">
+      {banner}
       <button type="button" className="back" onClick={() => setHistory((views) => views.slice(0, -1))}>
         ← Zurück
       </button>
@@ -77,6 +94,7 @@ export function MeetScreen({ meet, onRemove }: Props) {
           meet={meet}
           swimmerId={view.swimmerId}
           eventId={view.eventId}
+          clock={clock}
           onOpenSwimmer={openSwimmer}
           onCompare={() => go({ kind: "pick-comparison", first: { swimmerId: view.swimmerId, eventId: view.eventId } })}
         />
@@ -89,7 +107,9 @@ export function MeetScreen({ meet, onRemove }: Props) {
           onPick={(second) => go({ kind: "comparison", first: view.first, second })}
         />
       )}
-      {view.kind === "comparison" && <ComparisonView meet={meet} first={view.first} second={view.second} />}
+      {view.kind === "comparison" && (
+        <ComparisonView meet={meet} first={view.first} second={view.second} clock={clock} />
+      )}
     </div>
   );
 }

@@ -22,11 +22,11 @@ export function prelimOf(meet: Meet, final: MeetEvent): MeetEvent | null {
   );
 }
 
-/** A prelim is over, and its finals are set, once its last heat has started. */
-export function prelimIsOver(meet: Meet, prelim: MeetEvent, clock: MeetClock): boolean {
-  const session = meet.sessions.find((candidate) => candidate.number === prelim.session);
-  const lastHeat = prelim.heats.at(-1);
-  const time = lastHeat?.daytime ?? prelim.daytime ?? session?.daytime ?? "00:00";
+/** An event is over once its last heat has started: its places, and for a prelim its finals, are then set. */
+export function eventIsOver(meet: Meet, event: MeetEvent, clock: MeetClock): boolean {
+  const session = meet.sessions.find((candidate) => candidate.number === event.session);
+  const lastHeat = event.heats.at(-1);
+  const time = lastHeat?.daytime ?? event.daytime ?? session?.daytime ?? "00:00";
   return `${session?.date}T${time}` < clock;
 }
 
