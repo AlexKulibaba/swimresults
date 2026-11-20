@@ -7,10 +7,10 @@ import { useMeetClock } from "./useMeetClock";
 
 interface Props {
   meet: Meet;
-  onOpenAnother: () => void;
+  onRemove: () => void;
 }
 
-export function MeetScreen({ meet, onOpenAnother }: Props) {
+export function MeetScreen({ meet, onRemove }: Props) {
   const clock = useMeetClock();
   const [swimmerId, setSwimmerId] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export function MeetScreen({ meet, onOpenAnother }: Props) {
 
   return (
     <div className="stack">
-      <MeetSummaryView summary={meet.summary} onOpenAnother={onOpenAnother} />
+      <MeetSummaryView summary={meet.summary} onRemove={onRemove} />
       <SwimmerSearch meet={meet} onSelect={setSwimmerId} />
     </div>
   );

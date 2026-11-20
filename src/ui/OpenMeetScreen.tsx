@@ -1,27 +1,27 @@
 import { useEffect, useState, type DragEvent } from "react";
-import { openMeet, type Meet, type OpenMeetError } from "../meet";
+import type { OpenMeetError, OpenMeetResult } from "../meet";
 
 const errorMessages: Record<OpenMeetError, string> = {
   "not-a-lenex-meet": "Diese Datei konnte nicht als Wettkampf gelesen werden. Bitte wähle eine LENEX-Datei (.lxf oder .lef).",
 };
 
 interface Props {
-  onOpened: (meet: Meet) => void;
+  /** Opens the file and keeps it on the device if it is a meet. */
+  onOpen: (bytes: Uint8Array) => Promise<OpenMeetResult>;
 }
 
 /** Start screen: the meet file is read in the browser only and never uploaded (ADR 0001). */
-export function OpenMeetScreen({ onOpened }: Props) {
+export function OpenMeetScreen({ onOpen }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  function open(bytes: Uint8Array) {
-    const result = openMeet(bytes);
-    if (result.ok) onOpened(result.meet);
-    else setError(errorMessages[result.error]);
+  async function open(bytes: Uint8Array) {
+    const result = await onOpen(bytes);
+    if (!result.ok) setError(errorMessages[result.error]);
   }
 
   async function openFile(file: File | undefined) {
-    if (file) open(new Uint8Array(await file.arrayBuffer()));
+    if (file) await open(new Uint8Array(await file.arrayBuffer()));
   }
 
   function onDrop(event: DragEvent) {
@@ -56,8 +56,10 @@ export function OpenMeetScreen({ onOpened }: Props) {
           {error}
         </p>
       )}
-      <p className="muted">Die Datei wird nur in deinem Browser gelesen und nirgendwohin hochgeladen.</p>
-      {import.meta.env.DEV && <DevSamples onLoaded={open} />}
+      <p className="muted">
+        Die Datei wird nur in deinem Browser gelesen und auf diesem Gerät gespeichert – nirgendwohin hochgeladen.
+      </p>
+      {import.meta.env.DEV && <DevSamples onLoaded={(bytes) => void open(bytes)} />}
     </section>
   );
 }
