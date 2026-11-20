@@ -88,6 +88,21 @@ export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): Ord
   return swims;
 }
 
+/** A scheduled swim together with whose it is, for lists covering several swimmers. */
+export interface SwimmerSwim extends ScheduledSwim {
+  swimmer: Swimmer;
+}
+
+/** The swims of several swimmers merged in start order; each swimmer keeps their own next swim. */
+export function swimsOf(meet: Meet, swimmers: Swimmer[], clock: MeetClock): SwimmerSwim[] {
+  return swimmers
+    .flatMap((swimmer) =>
+      scheduleOf(meet, swimmer.id, clock).map((ordered) => ({ ...ordered, swim: { ...ordered.swim, swimmer } })),
+    )
+    .sort(byStartOrder)
+    .map(({ swim }) => swim);
+}
+
 export function byStartOrder(a: OrderedSwim, b: OrderedSwim): number {
   return (
     a.swim.date.localeCompare(b.swim.date) ||

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Meet } from "../meet";
 import { ClubScheduleView } from "./ClubScheduleView";
+import { HomeView } from "./HomeView";
 import { MeetSearch } from "./MeetSearch";
 import { MeetSummaryView } from "./MeetSummaryView";
 import { SwimDetailView } from "./SwimDetailView";
@@ -31,8 +32,15 @@ export function MeetScreen({ meet, onRemove }: Props) {
   if (!view) {
     return (
       <div className="stack">
+        <p className="meet-name">{meet.summary.name}</p>
+        <HomeView
+          meet={meet}
+          clock={clock}
+          onOpenSwimmer={openSwimmer}
+          onOpenSwim={openSwim}
+          search={<MeetSearch meet={meet} onOpenSwimmer={openSwimmer} onOpenClub={openClub} />}
+        />
         <MeetSummaryView summary={meet.summary} onRemove={onRemove} />
-        <MeetSearch meet={meet} onOpenSwimmer={openSwimmer} onOpenClub={openClub} />
       </div>
     );
   }

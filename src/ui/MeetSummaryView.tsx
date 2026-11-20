@@ -24,7 +24,7 @@ interface Props {
 export function MeetSummaryView({ summary, onRemove }: Props) {
   return (
     <section className="stack">
-      <h1>{summary.name}</h1>
+      <h2>Wettkampf</h2>
       <dl className="facts">
         <dt>Ort</dt>
         <dd>{summary.city}</dd>

@@ -29,8 +29,8 @@ describe("searching swimmers", () => {
 
   test("swimmers with the same name can be told apart by Jahrgang and club", () => {
     expect(searchSwimmers(meet, "anna schmidt")).toEqual([
-      { id: "3", firstName: "Anna", lastName: "Schmidt", jahrgang: 2008, club: "SG Essen" },
-      { id: "1", firstName: "Anna", lastName: "Schmidt", jahrgang: 2010, club: "SV Bayer Wuppertal" },
+      { id: "3", firstName: "Anna", lastName: "Schmidt", jahrgang: 2008, club: "SG Essen", license: null },
+      { id: "1", firstName: "Anna", lastName: "Schmidt", jahrgang: 2010, club: "SV Bayer Wuppertal", license: null },
     ]);
   });
 });

@@ -25,6 +25,8 @@ export interface Swimmer {
   /** Birth year; null when the meet file has no birthdate. */
   jahrgang: number | null;
   club: string;
+  /** Registration number with the national federation (e.g. DSV-ID); the same across meets. */
+  license: string | null;
 }
 
 export interface Club {

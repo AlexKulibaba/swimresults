@@ -53,6 +53,7 @@ interface LenexAthlete {
   firstname: string;
   lastname: string;
   birthdate?: string;
+  license?: string;
   ENTRIES?: { ENTRY: { eventid: string; entrytime?: string; heatid?: string; lane?: string }[] };
   RESULTS?: { RESULT: LenexResult[] };
 }
@@ -146,6 +147,7 @@ function readSwimmers(club: LenexClub): Swimmer[] {
     lastName: athlete.lastname,
     jahrgang: athlete.birthdate ? Number(athlete.birthdate.slice(0, 4)) : null,
     club: club.name,
+    license: athlete.license || null,
   }));
 }
 

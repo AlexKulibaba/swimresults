@@ -1,4 +1,5 @@
-import { clubSchedule, type ClubSwim, type Meet, type MeetClock } from "../meet";
+import { clubSchedule, type Meet, type MeetClock, type SwimmerSwim } from "../meet";
+import { ClubFollowButton } from "./FollowButtons";
 import { SwimCard } from "./SwimCard";
 
 interface Props {
@@ -20,6 +21,7 @@ export function ClubScheduleView({ meet, clubName, clock, onOpenSwimmer, onOpenS
         <h1>{club.name}</h1>
         <p className="muted">{club.swimmerCount === 1 ? "1 Schwimmer" : `${club.swimmerCount} Schwimmer`}</p>
       </header>
+      <ClubFollowButton clubName={club.name} />
       <ClubSwims title="Nächste Starts" empty="Keine weiteren Starts." swims={upcoming} {...{ onOpenSwimmer, onOpenSwim }} />
       <ClubSwims title="Beendet" empty="Noch keine Starts beendet." swims={completed} {...{ onOpenSwimmer, onOpenSwim }} />
     </section>
@@ -35,7 +37,7 @@ function ClubSwims({
 }: {
   title: string;
   empty: string;
-  swims: ClubSwim[];
+  swims: SwimmerSwim[];
   onOpenSwimmer: (swimmerId: string) => void;
   onOpenSwim: (swimmerId: string, eventId: string) => void;
 }) {

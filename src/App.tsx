@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { createFollowsStore } from "./device/followsStore";
 import { createMeetLibrary } from "./device/meetLibrary";
 import { indexedDbStorage } from "./device/indexedDbStorage";
 import type { Meet } from "./meet";
+import { FollowsProvider } from "./ui/follows";
 import { MeetScreen } from "./ui/MeetScreen";
 import { OpenMeetScreen } from "./ui/OpenMeetScreen";
 
 export function App() {
-  const library = useMemo(() => createMeetLibrary(indexedDbStorage()), []);
+  const storage = useMemo(() => indexedDbStorage(), []);
+  const library = useMemo(() => createMeetLibrary(storage), [storage]);
+  const followsStore = useMemo(() => createFollowsStore(storage), [storage]);
   const [meet, setMeet] = useState<Meet | null | "restoring">("restoring");
 
   useEffect(() => {
@@ -25,12 +29,14 @@ export function App() {
   }
 
   return (
-    <main className="page">
-      {meet === "restoring" ? null : meet ? (
-        <MeetScreen meet={meet} onRemove={remove} />
-      ) : (
-        <OpenMeetScreen onOpen={open} />
-      )}
-    </main>
+    <FollowsProvider store={followsStore}>
+      <main className="page">
+        {meet === "restoring" ? null : meet ? (
+          <MeetScreen meet={meet} onRemove={remove} />
+        ) : (
+          <OpenMeetScreen onOpen={open} />
+        )}
+      </main>
+    </FollowsProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { swimmerSchedule, type Meet, type MeetClock } from "../meet";
+import { SwimmerFollowButtons } from "./FollowButtons";
 import { SwimCard } from "./SwimCard";
 
 interface Props {
@@ -27,6 +28,7 @@ export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub, onOpen
           </button>
         </p>
       </header>
+      <SwimmerFollowButtons swimmer={swimmer} />
       {swims.length === 0 ? (
         <p className="muted">Keine Einzelstarts bei diesem Wettkampf.</p>
       ) : (

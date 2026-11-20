@@ -328,3 +328,30 @@ header p {
   font-size: 0.8rem;
   font-weight: normal;
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+  font-weight: 600;
+}
+
+.meet-name {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.hint {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: var(--muted);
+}
