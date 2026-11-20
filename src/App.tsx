@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meet } from "./meet";
-import { MeetSummaryView } from "./ui/MeetSummaryView";
+import { MeetScreen } from "./ui/MeetScreen";
 import { OpenMeetScreen } from "./ui/OpenMeetScreen";
 
 export function App() {
@@ -9,7 +9,7 @@ export function App() {
   return (
     <main className="page">
       {meet ? (
-        <MeetSummaryView summary={meet.summary} onOpenAnother={() => setMeet(null)} />
+        <MeetScreen meet={meet} onOpenAnother={() => setMeet(null)} />
       ) : (
         <OpenMeetScreen onOpened={setMeet} />
       )}
