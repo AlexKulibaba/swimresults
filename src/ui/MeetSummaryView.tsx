@@ -18,13 +18,13 @@ function courseLabel(course: Course): string {
 
 interface Props {
   summary: MeetSummary;
-  onOpenAnother: () => void;
+  onRemove: () => void;
 }
 
-export function MeetSummaryView({ summary, onOpenAnother }: Props) {
+export function MeetSummaryView({ summary, onRemove }: Props) {
   return (
     <section className="stack">
-      <h1>{summary.name}</h1>
+      <h2>Wettkampf</h2>
       <dl className="facts">
         <dt>Ort</dt>
         <dd>{summary.city}</dd>
@@ -33,8 +33,8 @@ export function MeetSummaryView({ summary, onOpenAnother }: Props) {
         <dt>Bahn</dt>
         <dd>{courseLabel(summary.course)}</dd>
       </dl>
-      <button type="button" className="secondary" onClick={onOpenAnother}>
-        Anderen Wettkampf öffnen
+      <button type="button" className="secondary" onClick={onRemove}>
+        Wettkampf entfernen
       </button>
     </section>
   );
