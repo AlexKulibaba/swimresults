@@ -52,7 +52,7 @@ interface LenexAthlete {
   firstname: string;
   lastname: string;
   birthdate?: string;
-  ENTRIES?: { ENTRY: { eventid: string; heatid?: string; lane?: string }[] };
+  ENTRIES?: { ENTRY: { eventid: string; entrytime?: string; heatid?: string; lane?: string }[] };
   RESULTS?: { RESULT: { eventid: string; heatid?: string; lane?: string; swimtime?: string; status?: string }[] };
 }
 
@@ -144,6 +144,7 @@ function readSwims(club: LenexClub, individualEventIds: Set<string>): SwimRecord
         heatId: entry.heatid ?? null,
         lane: entry.lane ? Number(entry.lane) : null,
         status: null,
+        entryTime: entry.entrytime ? hundredths(entry.entrytime) : null,
         swimTime: null,
       });
     }
@@ -155,6 +156,7 @@ function readSwims(club: LenexClub, individualEventIds: Set<string>): SwimRecord
         heatId: result.heatid ?? entered?.heatId ?? null,
         lane: result.lane ? Number(result.lane) : (entered?.lane ?? null),
         status: result.status ?? null,
+        entryTime: entered?.entryTime ?? null,
         swimTime: result.swimtime ? hundredths(result.swimtime) : null,
       });
     }

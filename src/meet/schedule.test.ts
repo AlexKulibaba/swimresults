@@ -298,3 +298,43 @@ describe("events the meet file describes only partly", () => {
     expect(swimmerSchedule(meet, "1", beforeTheMeet)?.swims.map((swim) => swim.eventNumber)).toEqual([1]);
   });
 });
+
+describe("entry times in the schedule", () => {
+  const meet = open(
+    lenexMeet({
+      sessions: `
+        <SESSION number="1" date="2026-11-12" daytime="09:00">
+          <EVENTS>
+            <EVENT eventid="10" number="1" gender="F" round="PRE" order="1">
+              <SWIMSTYLE name="100m Freistil weiblich (Vorlauf)" stroke="FREE" relaycount="1" distance="100" />
+              <HEATS><HEAT heatid="101" number="1" daytime="09:00" /></HEATS>
+            </EVENT>
+            <EVENT eventid="11" number="2" gender="F" round="TIM" order="2">
+              <SWIMSTYLE name="50m Rücken weiblich" stroke="BACK" relaycount="1" distance="50" />
+              <HEATS><HEAT heatid="111" number="1" daytime="09:30" /></HEATS>
+            </EVENT>
+            <EVENT eventid="12" number="101" gender="F" round="FIN" order="3">
+              <SWIMSTYLE name="100m Freistil weiblich (Finale)" stroke="FREE" relaycount="1" distance="100" />
+              <HEATS><HEAT heatid="121" number="1" daytime="17:00" /></HEATS>
+            </EVENT>
+          </EVENTS>
+        </SESSION>`,
+      clubs: `
+        <CLUB name="SV Bayer Wuppertal">
+          <ATHLETES>
+            <ATHLETE athleteid="1" firstname="Anna" lastname="Schmidt" birthdate="2010-01-01" gender="F">
+              <ENTRIES>
+                <ENTRY eventid="10" entrytime="00:01:02.33" heatid="101" lane="4" />
+                <ENTRY eventid="11" entrytime="NT" heatid="111" lane="1" />
+                <ENTRY eventid="12" entrytime="00:01:01.80" heatid="121" lane="4" />
+              </ENTRIES>
+            </ATHLETE>
+          </ATHLETES>
+        </CLUB>`,
+    }),
+  );
+
+  test("prelims and timed finals show the entry time; no time stays empty; finals show none", () => {
+    expect(swimmerSchedule(meet, "1", beforeTheMeet)?.swims.map((swim) => swim.entryTime)).toEqual([6233, null, null]);
+  });
+});

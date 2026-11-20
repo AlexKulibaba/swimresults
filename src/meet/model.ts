@@ -63,6 +63,8 @@ export interface SwimRecord {
   heatId: string | null;
   lane: number | null;
   status: SwimStatus | null;
+  /** Hundredths of a second, as entered; in finals this is usually the prelim time. */
+  entryTime: number | null;
   /** Hundredths of a second. */
   swimTime: number | null;
 }

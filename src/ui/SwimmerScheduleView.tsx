@@ -69,6 +69,12 @@ function SwimCard({ swim }: { swim: ScheduledSwim }) {
           <dt>Bahn</dt>
           <dd>{swim.lane ?? "nicht zugeteilt"}</dd>
         </div>
+        {swim.entryTime !== null && (
+          <div>
+            <dt>Meldezeit</dt>
+            <dd>{formatSwimTime(swim.entryTime)}</dd>
+          </div>
+        )}
         {swim.phase === "done" && (swim.status || swim.swimTime) && (
           <div>
             <dt>Ergebnis</dt>

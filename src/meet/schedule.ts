@@ -21,6 +21,8 @@ export interface ScheduledSwim {
   heatCount: number;
   lane: number | null;
   status: SwimStatus | null;
+  /** Meldezeit in hundredths of a second; null without one, and for finals (seeded by prelim times instead). */
+  entryTime: number | null;
   /** Hundredths of a second. */
   swimTime: number | null;
   phase: SwimPhase;
@@ -59,6 +61,7 @@ export function swimmerSchedule(meet: Meet, swimmerId: string, clock: MeetClock)
             heatCount: event.heats.length,
             lane: swim.lane,
             status: swim.status,
+            entryTime: event.round === "FIN" ? null : swim.entryTime,
             swimTime: swim.swimTime,
             phase: "later" as SwimPhase,
           },
