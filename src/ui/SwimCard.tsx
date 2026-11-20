@@ -5,12 +5,14 @@ interface Props {
   swim: ScheduledSwim;
   /** Shown on lists with several swimmers, e.g. a club page. */
   swimmer?: Swimmer;
+  /** For swimmers starting for several clubs: shows which club this swim is for. */
+  showClub?: boolean;
   onOpenSwimmer?: (swimmerId: string) => void;
   /** Opens the detail of a completed swim. */
   onOpenDetail?: () => void;
 }
 
-export function SwimCard({ swim, swimmer, onOpenSwimmer, onOpenDetail }: Props) {
+export function SwimCard({ swim, swimmer, showClub, onOpenSwimmer, onOpenDetail }: Props) {
   const completed = swim.phase === "done" && (swim.status !== null || swim.swimTime !== null);
   return (
     <li className={`swim swim--${swim.phase}`}>
@@ -26,6 +28,7 @@ export function SwimCard({ swim, swimmer, onOpenSwimmer, onOpenDetail }: Props) 
       </div>
       <div className="muted">
         Abschnitt {swim.session} · {roundLabel(swim.round)}
+        {showClub && ` · für ${swim.club}`}
       </div>
       <dl className="swim__facts">
         <div>

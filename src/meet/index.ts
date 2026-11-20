@@ -8,7 +8,7 @@ export { clubSchedule, searchClubs } from "./clubs";
 export type { ClubHit, ClubSchedule } from "./clubs";
 export { swimDetail } from "./swimDetail";
 export type { SplitSegment, SwimDetail } from "./swimDetail";
-export { findSwimmers, swimmerKey } from "./identity";
+export { findSwimmer, swimmerKey } from "./identity";
 export type { SwimmerKey } from "./identity";
 export { homePage } from "./home";
 export type { Follows, HomePage } from "./home";

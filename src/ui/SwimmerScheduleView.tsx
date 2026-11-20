@@ -23,9 +23,14 @@ export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub, onOpen
         </h1>
         <p className="muted">
           {swimmer.jahrgang ?? "Jahrgang unbekannt"} ·{" "}
-          <button type="button" className="link" onClick={() => onOpenClub(swimmer.club)}>
-            {swimmer.club}
-          </button>
+          {swimmer.clubs.map((club, index) => (
+            <span key={club}>
+              {index > 0 && ", "}
+              <button type="button" className="link" onClick={() => onOpenClub(club)}>
+                {club}
+              </button>
+            </span>
+          ))}
         </p>
       </header>
       <SwimmerFollowButtons swimmer={swimmer} />
@@ -34,7 +39,12 @@ export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub, onOpen
       ) : (
         <ol className="swims">
           {swims.map((swim) => (
-            <SwimCard key={swim.eventId} swim={swim} onOpenDetail={() => onOpenSwim(swimmer.id, swim.eventId)} />
+            <SwimCard
+              key={swim.eventId}
+              swim={swim}
+              showClub={swimmer.clubs.length > 1}
+              onOpenDetail={() => onOpenSwim(swimmer.id, swim.eventId)}
+            />
           ))}
         </ol>
       )}

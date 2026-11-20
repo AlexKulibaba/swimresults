@@ -30,11 +30,11 @@ The lane a swimmer is assigned in a heat.
 ## Swimmers
 
 **Swimmer** _(Schwimmer/in, Aktive/r)_:
-A person entered in the meet as an individual competitor.
+A person entered in the meet as an individual competitor. Entries with the same license for several clubs are one swimmer.
 _Avoid_: Athlete (except when quoting LENEX), competitor, participant
 
 **Club** _(Verein)_:
-The club a swimmer starts for at this meet.
+A club swimmers start for at this meet. A swimmer usually starts for one club, but can start for several, e.g. their club and a federation team; each swim is for one club.
 _Avoid_: Team
 
 **Scoring group** _(Wertung)_:

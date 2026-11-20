@@ -82,6 +82,7 @@ function readMeet(bytes: Uint8Array): Meet {
   const events = lenexSessions.flatMap(readIndividualEvents);
   const places = readPlaces(lenexSessions);
   const clubs: LenexClub[] = meet.CLUBS?.CLUB ?? [];
+  const { swimmers, swimmerIdOf } = readSwimmers(clubs);
 
   return {
     summary: {
@@ -92,10 +93,10 @@ function readMeet(bytes: Uint8Array): Meet {
       lastDay: days[days.length - 1]!,
     },
     clubs: clubs.map((club) => ({ name: club.name })),
-    swimmers: clubs.flatMap(readSwimmers),
+    swimmers,
     sessions,
     events,
-    swims: clubs.flatMap((club) => readSwims(club, new Set(events.map((event) => event.id)), places)),
+    swims: clubs.flatMap((club) => readSwims(club, swimmerIdOf, new Set(events.map((event) => event.id)), places)),
   };
 }
 
@@ -140,15 +141,38 @@ function fallbackEventName(event: LenexEvent): string {
   return [`${distance}m`, strokeNames[stroke] ?? stroke, gender].filter(Boolean).join(" ");
 }
 
-function readSwimmers(club: LenexClub): Swimmer[] {
-  return (club.ATHLETES?.ATHLETE ?? []).map((athlete) => ({
-    id: athlete.athleteid,
-    firstName: athlete.firstname,
-    lastName: athlete.lastname,
-    jahrgang: athlete.birthdate ? Number(athlete.birthdate.slice(0, 4)) : null,
-    club: club.name,
-    license: athlete.license || null,
-  }));
+/**
+ * One swimmer per person: athletes with the same license (e.g. entered for their club and a federation team) are
+ * merged. Without a license, entries are never merged, since a shared name doesn't prove it's the same person.
+ */
+function readSwimmers(clubs: LenexClub[]): { swimmers: Swimmer[]; swimmerIdOf: Map<string, string> } {
+  const swimmers: Swimmer[] = [];
+  const byLicense = new Map<string, Swimmer>();
+  const swimmerIdOf = new Map<string, string>();
+
+  for (const club of clubs) {
+    for (const athlete of club.ATHLETES?.ATHLETE ?? []) {
+      const known = athlete.license ? byLicense.get(athlete.license) : undefined;
+      if (known) {
+        if (!known.clubs.includes(club.name)) known.clubs.push(club.name);
+        swimmerIdOf.set(athlete.athleteid, known.id);
+        continue;
+      }
+
+      const swimmer: Swimmer = {
+        id: athlete.athleteid,
+        firstName: athlete.firstname,
+        lastName: athlete.lastname,
+        jahrgang: athlete.birthdate ? Number(athlete.birthdate.slice(0, 4)) : null,
+        clubs: [club.name],
+        license: athlete.license || null,
+      };
+      swimmers.push(swimmer);
+      if (swimmer.license) byLicense.set(swimmer.license, swimmer);
+      swimmerIdOf.set(athlete.athleteid, swimmer.id);
+    }
+  }
+  return { swimmers, swimmerIdOf };
 }
 
 /** Places by result id, from every event's scoring groups; non-positive places (e.g. disqualified) are left out. */
@@ -167,15 +191,22 @@ function readPlaces(sessions: LenexSession[]): Map<string, Place[]> {
   return places;
 }
 
-/** One swim per swimmer and event; the result's heat and lane win over the entry's. */
-function readSwims(club: LenexClub, individualEventIds: Set<string>, places: Map<string, Place[]>): SwimRecord[] {
+/** One swim per athlete and event; the result's heat and lane win over the entry's. */
+function readSwims(
+  club: LenexClub,
+  swimmerIdOf: Map<string, string>,
+  individualEventIds: Set<string>,
+  places: Map<string, Place[]>,
+): SwimRecord[] {
   return (club.ATHLETES?.ATHLETE ?? []).flatMap((athlete) => {
+    const swimmerId = swimmerIdOf.get(athlete.athleteid) ?? athlete.athleteid;
     const swims = new Map<string, SwimRecord>();
 
     for (const entry of athlete.ENTRIES?.ENTRY ?? []) {
       swims.set(entry.eventid, {
-        swimmerId: athlete.athleteid,
+        swimmerId,
         eventId: entry.eventid,
+        club: club.name,
         heatId: entry.heatid ?? null,
         lane: entry.lane ? Number(entry.lane) : null,
         status: null,
@@ -189,8 +220,9 @@ function readSwims(club: LenexClub, individualEventIds: Set<string>, places: Map
     for (const result of athlete.RESULTS?.RESULT ?? []) {
       const entered = swims.get(result.eventid);
       swims.set(result.eventid, {
-        swimmerId: athlete.athleteid,
+        swimmerId,
         eventId: result.eventid,
+        club: club.name,
         heatId: result.heatid ?? entered?.heatId ?? null,
         lane: result.lane ? Number(result.lane) : (entered?.lane ?? null),
         status: result.status ?? null,

@@ -25,8 +25,8 @@ export function HomeView({ meet, clock, onOpenSwimmer, onOpenSwim, search }: Pro
         <section className="stack">
           <h2>
             Meine Starts ·{" "}
-            <button type="button" className="link" onClick={() => onOpenSwimmer(home.me!.swimmers[0]!.id)}>
-              {home.me.swimmers[0]!.firstName} {home.me.swimmers[0]!.lastName}
+            <button type="button" className="link" onClick={() => onOpenSwimmer(home.me!.swimmer.id)}>
+              {home.me.swimmer.firstName} {home.me.swimmer.lastName}
             </button>
           </h2>
           {home.me.swims.length === 0 ? (
@@ -35,8 +35,9 @@ export function HomeView({ meet, clock, onOpenSwimmer, onOpenSwim, search }: Pro
             <ol className="swims">
               {home.me.swims.map((swim) => (
                 <SwimCard
-                  key={`${swim.swimmer.id}-${swim.eventId}`}
+                  key={swim.eventId}
                   swim={swim}
+                  showClub={home.me!.swimmer.clubs.length > 1}
                   onOpenDetail={() => onOpenSwim(swim.swimmer.id, swim.eventId)}
                 />
               ))}

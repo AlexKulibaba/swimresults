@@ -17,14 +17,16 @@ export interface MeetSummary {
   lastDay: string;
 }
 
+/** One person; entries with the same license for several clubs are merged into one swimmer. */
 export interface Swimmer {
-  /** The LENEX athlete id, unique within one meet. */
+  /** The LENEX athlete id of the person's first entry, unique within one meet. */
   id: string;
   firstName: string;
   lastName: string;
   /** Birth year; null when the meet file has no birthdate. */
   jahrgang: number | null;
-  club: string;
+  /** Every club the swimmer starts for at this meet, in file order; usually one. */
+  clubs: string[];
   /** Registration number with the national federation (e.g. DSV-ID); the same across meets. */
   license: string | null;
 }
@@ -86,6 +88,8 @@ export interface Place {
 export interface SwimRecord {
   swimmerId: string;
   eventId: string;
+  /** The club this swim is started for. */
+  club: string;
   heatId: string | null;
   lane: number | null;
   status: SwimStatus | null;

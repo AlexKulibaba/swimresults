@@ -51,7 +51,7 @@ export function MeetSearch({ meet, onOpenSwimmer, onOpenClub }: Props) {
                   {swimmer.firstName} {swimmer.lastName}
                 </span>
                 <span className="muted">
-                  {swimmer.jahrgang ?? "Jahrgang unbekannt"} · {swimmer.club}
+                  {swimmer.jahrgang ?? "Jahrgang unbekannt"} · {swimmer.clubs.join(", ")}
                 </span>
               </button>
             </li>

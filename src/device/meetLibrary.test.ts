@@ -16,7 +16,7 @@ describe("keeping the meet on the device", () => {
 
     const restored = await createMeetLibrary(storage).restore();
 
-    expect(restored?.swimmers.map((swimmer) => swimmer.club)).toEqual(["SG Essen"]);
+    expect(restored?.swimmers.flatMap((swimmer) => swimmer.clubs)).toEqual(["SG Essen"]);
   });
 
   test("nothing is restored on a first visit", async () => {
@@ -30,7 +30,7 @@ describe("keeping the meet on the device", () => {
 
     const restored = await createMeetLibrary(storage).restore();
 
-    expect(restored?.swimmers.map((swimmer) => swimmer.club)).toEqual(["SV Bayer Wuppertal"]);
+    expect(restored?.swimmers.flatMap((swimmer) => swimmer.clubs)).toEqual(["SV Bayer Wuppertal"]);
   });
 
   test("a file that is not a meet is rejected and leaves the stored meet alone", async () => {
@@ -41,7 +41,7 @@ describe("keeping the meet on the device", () => {
     const result = await library.open(new TextEncoder().encode("keine LENEX-Datei"));
 
     expect(result).toEqual({ ok: false, error: "not-a-lenex-meet" });
-    expect((await createMeetLibrary(storage).restore())?.swimmers[0]?.club).toBe("SG Essen");
+    expect((await createMeetLibrary(storage).restore())?.swimmers[0]?.clubs).toEqual(["SG Essen"]);
   });
 
   test("a removed meet is not restored", async () => {

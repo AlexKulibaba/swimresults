@@ -9,6 +9,8 @@ export type SwimPhase = "done" | "next" | "later";
 export interface ScheduledSwim {
   /** With the swimmer, identifies the swim, e.g. to open its detail. */
   eventId: string;
+  /** The club the swim is started for. */
+  club: string;
   session: number;
   eventNumber: number;
   eventName: string;
@@ -63,6 +65,7 @@ export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): Ord
           eventOrder: event.order,
           swim: {
             eventId: event.id,
+            club: swim.club,
             session: session.number,
             eventNumber: event.number,
             eventName: event.name,

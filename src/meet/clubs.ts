@@ -26,11 +26,7 @@ export function searchClubs(meet: Meet, query: string): ClubHit[] {
 export function clubSchedule(meet: Meet, clubName: string, clock: MeetClock): ClubSchedule | null {
   if (!meet.clubs.some((club) => club.name === clubName)) return null;
 
-  const swims = swimsOf(
-    meet,
-    meet.swimmers.filter((swimmer) => swimmer.club === clubName),
-    clock,
-  );
+  const swims = swimsOf(meet, membersOf(meet, clubName), clock).filter((swim) => swim.club === clubName);
 
   return {
     club: clubHit(meet, clubName),
@@ -40,5 +36,9 @@ export function clubSchedule(meet: Meet, clubName: string, clock: MeetClock): Cl
 }
 
 function clubHit(meet: Meet, name: string): ClubHit {
-  return { name, swimmerCount: meet.swimmers.filter((swimmer) => swimmer.club === name).length };
+  return { name, swimmerCount: membersOf(meet, name).length };
+}
+
+function membersOf(meet: Meet, clubName: string) {
+  return meet.swimmers.filter((swimmer) => swimmer.clubs.includes(clubName));
 }
