@@ -1,17 +1,18 @@
-import { swimDetail, type Meet } from "../meet";
+import { swimDetail, type Meet, type MeetClock } from "../meet";
 import { formatDifference, formatEntryRank, formatReactionTime, formatSwimTime, roundLabel, statusLabel } from "./format";
 
 interface Props {
   meet: Meet;
   swimmerId: string;
   eventId: string;
+  clock: MeetClock;
   onOpenSwimmer: (swimmerId: string) => void;
   onCompare: () => void;
 }
 
-export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer, onCompare }: Props) {
-  const detail = swimDetail(meet, swimmerId, eventId);
-  if (!detail) return <p className="error">Start nicht gefunden.</p>;
+export function SwimDetailView({ meet, swimmerId, eventId, clock, onOpenSwimmer, onCompare }: Props) {
+  const detail = swimDetail(meet, swimmerId, eventId, clock);
+  if (!detail) return <p className="muted">Dieser Start hat zur gewählten Zeit noch nicht stattgefunden.</p>;
 
   return (
     <section className="stack">

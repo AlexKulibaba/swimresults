@@ -1,23 +1,22 @@
-import { compareSwims, type ComparedSwim, type Meet, type SwimRef } from "../meet";
+import { compareSwims, type ComparedSwim, type Meet, type MeetClock, type SwimRef } from "../meet";
 import { formatDifference, formatSwimTime, roundLabel } from "./format";
 
 interface Props {
   meet: Meet;
   first: SwimRef;
   second: SwimRef;
+  clock: MeetClock;
 }
 
-export function ComparisonView({ meet, first, second }: Props) {
-  const comparison = compareSwims(meet, first, second);
-  if (!comparison.ok) {
-    return (
-      <p className="error">
-        {comparison.reason === "different-stroke-or-distance"
-          ? "Nur Starts über dieselbe Lage und Strecke lassen sich vergleichen."
-          : "Nur Starts mit gültiger Zeit lassen sich vergleichen."}
-      </p>
-    );
-  }
+const refusals = {
+  "different-stroke-or-distance": "Nur Starts über dieselbe Lage und Strecke lassen sich vergleichen.",
+  "not-swum-yet": "Einer der Starts hat zur gewählten Zeit noch nicht stattgefunden.",
+  "no-valid-time": "Nur Starts mit gültiger Zeit lassen sich vergleichen.",
+};
+
+export function ComparisonView({ meet, first, second, clock }: Props) {
+  const comparison = compareSwims(meet, first, second, clock);
+  if (!comparison.ok) return <p className="error">{refusals[comparison.reason]}</p>;
 
   return (
     <section className="stack">
