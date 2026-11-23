@@ -70,7 +70,7 @@ describe("choosing a swim to compare with", () => {
 
 describe("comparing two swims", () => {
   test("shows both finish times and the gap, and the gap at every distance both swims measured", () => {
-    expect(compareSwims(meet, annaPrelim, { swimmerId: "2", eventId: "10" })).toMatchObject({
+    expect(compareSwims(meet, annaPrelim, { swimmerId: "2", eventId: "10" }, afterTheMeet)).toMatchObject({
       ok: true,
       first: { swimmer: { firstName: "Anna" }, round: "PRE", swimTime: 6000 },
       second: { swimmer: { firstName: "Lena" }, round: "PRE", swimTime: 6100 },
@@ -83,7 +83,7 @@ describe("comparing two swims", () => {
   });
 
   test("a prelim and a final can be compared, each labeled with its round", () => {
-    expect(compareSwims(meet, annaPrelim, { swimmerId: "1", eventId: "11" })).toMatchObject({
+    expect(compareSwims(meet, annaPrelim, { swimmerId: "1", eventId: "11" }, afterTheMeet)).toMatchObject({
       ok: true,
       first: { eventName: "100m Freistil weiblich (Vorlauf)", round: "PRE" },
       second: { eventName: "100m Freistil weiblich (Finale)", round: "FIN" },
@@ -93,8 +93,8 @@ describe("comparing two swims", () => {
 
   test("swims over a different stroke or distance can't be compared", () => {
     expect([
-      compareSwims(meet, annaPrelim, { swimmerId: "4", eventId: "20" }),
-      compareSwims(meet, annaPrelim, { swimmerId: "5", eventId: "30" }),
+      compareSwims(meet, annaPrelim, { swimmerId: "4", eventId: "20" }, afterTheMeet),
+      compareSwims(meet, annaPrelim, { swimmerId: "5", eventId: "30" }, afterTheMeet),
     ]).toEqual([
       { ok: false, reason: "different-stroke-or-distance" },
       { ok: false, reason: "different-stroke-or-distance" },
@@ -102,6 +102,6 @@ describe("comparing two swims", () => {
   });
 
   test("a swim with a status can't be compared", () => {
-    expect(compareSwims(meet, annaPrelim, { swimmerId: "3", eventId: "10" })).toEqual({ ok: false, reason: "no-valid-time" });
+    expect(compareSwims(meet, annaPrelim, { swimmerId: "3", eventId: "10" }, afterTheMeet)).toEqual({ ok: false, reason: "no-valid-time" });
   });
 });

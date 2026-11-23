@@ -1,6 +1,6 @@
 import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, MeetEvent, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
-import { finalsOf, prelimIsOver, prelimOf } from "./rounds";
+import { eventIsOver, finalsOf, prelimOf } from "./rounds";
 
 /** "YYYY-MM-DDTHH:MM" in the meet's local time. */
 export type MeetClock = string;
@@ -69,11 +69,11 @@ export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): Ord
 
     if (event.round === "FIN") {
       const prelim = prelimOf(meet, event);
-      if (prelim && !prelimIsOver(meet, prelim, clock)) continue;
+      if (prelim && !eventIsOver(meet, prelim, clock)) continue;
     }
     swims.push(...scheduled(meet, event, record, clock));
 
-    if (event.round === "PRE" && record.status === null && !prelimIsOver(meet, event, clock)) {
+    if (event.round === "PRE" && record.status === null && !eventIsOver(meet, event, clock)) {
       for (const final of finalsOf(meet, event)) swims.push(...scheduled(meet, final, record, clock, { ifQualified: true }));
     }
   }
@@ -96,6 +96,9 @@ function scheduled(
   if (!session) return [];
   const heat = ifQualified ? event.heats[0] : event.heats.find((candidate) => candidate.id === record.heatId);
   const time = heat?.daytime ?? event.daytime ?? session.daytime;
+  const started = startOf(session.date, time) < clock;
+  // Before the start only a withdrawal can be known; results and other statuses come with the swim.
+  const status = ifQualified ? null : started || record.status === "WDR" ? record.status : null;
 
   return [
     {
@@ -114,11 +117,11 @@ function scheduled(
         heat: ifQualified ? null : (heat?.number ?? null),
         heatCount: event.heats.length,
         lane: ifQualified ? null : record.lane,
-        status: ifQualified ? null : record.status,
+        status,
         entryTime: ifQualified || event.round === "FIN" ? null : record.entryTime,
         entryRank: ifQualified ? null : entryRank(meet, record),
-        swimTime: ifQualified ? null : record.swimTime,
-        phase: startOf(session.date, time) < clock ? "done" : "later",
+        swimTime: ifQualified || !started ? null : record.swimTime,
+        phase: started ? "done" : "later",
       },
     },
   ];

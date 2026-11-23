@@ -81,7 +81,7 @@ _Avoid_: Final (clashes with the round), confirmed
 The single notion of "now" the app uses to decide what is next and what is done. It follows real time unless a replay is set.
 _Avoid_: Current time, system time
 
-**Replay**:
+**Replay** _(Wiederholung)_:
 Setting the meet clock to a past moment of a meet, always labeled as such; it shows only what was knowable at that moment. Not live coverage.
 _Avoid_: Simulation, demo, live
 

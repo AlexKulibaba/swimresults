@@ -37,7 +37,7 @@ export type Comparison =
       /** Only distances both swims measured, including the finish; nothing is said about between them. */
       splits: SplitGap[];
     }
-  | { ok: false; reason: "different-stroke-or-distance" | "no-valid-time" };
+  | { ok: false; reason: "different-stroke-or-distance" | "not-swum-yet" | "no-valid-time" };
 
 /**
  * Swims that can be compared with the given one: completed by the clock, with a valid time, over the same stroke and
@@ -51,19 +51,21 @@ export function comparableSwims(meet: Meet, ref: SwimRef, clock: MeetClock, quer
     .filter((swim) => !(swim.swimmerId === ref.swimmerId && swim.eventId === ref.eventId))
     .filter((swim) => {
       const other = eventOf(meet, swim.eventId);
-      const start = startOfSwim(meet, swim);
-      return other !== undefined && sameStyle(event, other) && start !== null && start < clock;
+      return other !== undefined && sameStyle(event, other) && hasStarted(meet, swim, clock);
     })
     .flatMap((swim) => comparedSwim(meet, swim) ?? [])
     .filter((swim) => query.trim() === "" || matchesEveryWord(`${swim.swimmer.firstName} ${swim.swimmer.lastName}`, query))
     .sort((a, b) => a.swimTime - b.swimTime);
 }
 
-export function compareSwims(meet: Meet, firstRef: SwimRef, secondRef: SwimRef): Comparison {
+export function compareSwims(meet: Meet, firstRef: SwimRef, secondRef: SwimRef, clock: MeetClock): Comparison {
   const [firstRecord, secondRecord] = [recordOf(meet, firstRef), recordOf(meet, secondRef)];
   const [firstEvent, secondEvent] = [eventOf(meet, firstRef.eventId), eventOf(meet, secondRef.eventId)];
   if (!firstEvent || !secondEvent || !sameStyle(firstEvent, secondEvent)) {
     return { ok: false, reason: "different-stroke-or-distance" };
+  }
+  if (![firstRecord, secondRecord].every((record) => record && hasStarted(meet, record, clock))) {
+    return { ok: false, reason: "not-swum-yet" };
   }
 
   const first = firstRecord && comparedSwim(meet, firstRecord);
@@ -99,6 +101,11 @@ function measured(record: SwimRecord, distance: number, swimTime: number): Map<n
     .filter((split) => split.distance < distance)
     .map((split) => [split.distance, split.time]);
   return new Map([...splits, [distance, swimTime] as [number, number]].sort(([a], [b]) => a - b));
+}
+
+function hasStarted(meet: Meet, record: SwimRecord, clock: MeetClock): boolean {
+  const start = startOfSwim(meet, record);
+  return start !== null && start < clock;
 }
 
 function sameStyle(a: MeetEvent, b: MeetEvent): boolean {

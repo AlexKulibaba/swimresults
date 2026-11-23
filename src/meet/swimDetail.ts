@@ -1,6 +1,7 @@
 import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, Place, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
-import { prelimOf } from "./rounds";
+import { eventIsOver, prelimOf } from "./rounds";
+import { startOfSwim, type MeetClock } from "./schedule";
 
 /** The time between two measured distances of a swim. */
 export interface SplitSegment {
@@ -40,11 +41,14 @@ export interface SwimDetail {
   splits: SplitSegment[];
 }
 
-export function swimDetail(meet: Meet, swimmerId: string, eventId: string): SwimDetail | null {
+/** The detail of a swim that has started by the clock; places only once the whole event is over. */
+export function swimDetail(meet: Meet, swimmerId: string, eventId: string, clock: MeetClock): SwimDetail | null {
   const swimmer = meet.swimmers.find((candidate) => candidate.id === swimmerId);
   const event = meet.events.find((candidate) => candidate.id === eventId);
   const swim = meet.swims.find((candidate) => candidate.swimmerId === swimmerId && candidate.eventId === eventId);
   if (!swimmer || !event || !swim) return null;
+  const start = startOfSwim(meet, swim);
+  if (start === null || start >= clock) return null;
 
   const valid = swim.status === null;
   const swimTime = valid ? swim.swimTime : null;
@@ -61,7 +65,7 @@ export function swimDetail(meet: Meet, swimmerId: string, eventId: string): Swim
     status: swim.status,
     swimTime,
     official: true,
-    places: valid ? swim.places : [],
+    places: valid && eventIsOver(meet, event, clock) ? swim.places : [],
     entryTime,
     differenceFromEntryTime: swimTime !== null && entryTime !== null ? swimTime - entryTime : null,
     entryRank: entryRank(meet, swim),
