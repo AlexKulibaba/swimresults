@@ -13,3 +13,5 @@ export { findSwimmer, swimmerKey } from "./identity";
 export type { SwimmerKey } from "./identity";
 export { homePage } from "./home";
 export type { Follows, HomePage } from "./home";
+export { comparableSwims, compareSwims } from "./compare";
+export type { ComparedSwim, Comparison, SplitGap, SwimRef } from "./compare";

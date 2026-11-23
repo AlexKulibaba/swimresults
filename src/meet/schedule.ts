@@ -148,6 +148,15 @@ export function byStartOrder(a: OrderedSwim, b: OrderedSwim): number {
   );
 }
 
+/** When a swim is scheduled to start, comparable with a MeetClock. */
+export function startOfSwim(meet: Meet, record: SwimRecord): MeetClock | null {
+  const event = meet.events.find((candidate) => candidate.id === record.eventId);
+  const session = meet.sessions.find((candidate) => candidate.number === event?.session);
+  if (!event || !session) return null;
+  const heat = event.heats.find((candidate) => candidate.id === record.heatId);
+  return startOf(session.date, heat?.daytime ?? event.daytime ?? session.daytime);
+}
+
 /** Comparable with a MeetClock; a swim without a time counts from the start of its day. */
 function startOf(date: string, time: string | null): MeetClock {
   return `${date}T${time ?? "00:00"}`;

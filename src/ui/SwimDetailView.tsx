@@ -6,9 +6,10 @@ interface Props {
   swimmerId: string;
   eventId: string;
   onOpenSwimmer: (swimmerId: string) => void;
+  onCompare: () => void;
 }
 
-export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer }: Props) {
+export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer, onCompare }: Props) {
   const detail = swimDetail(meet, swimmerId, eventId);
   if (!detail) return <p className="error">Start nicht gefunden.</p>;
 
@@ -81,6 +82,14 @@ export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer }: Prop
           </div>
         )}
       </dl>
+
+      {detail.swimTime !== null && (
+        <div className="actions">
+          <button type="button" onClick={onCompare}>
+            Mit anderem Start vergleichen
+          </button>
+        </div>
+      )}
 
       {detail.splits.length > 0 && (
         <table className="splits">
