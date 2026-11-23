@@ -43,6 +43,7 @@ export function SwimmerScheduleView({ meet, swimmerId, clock, onOpenClub, onOpen
               key={swim.eventId}
               swim={swim}
               showClub={swimmer.clubs.length > 1}
+              showEntryRank
               onOpenDetail={() => onOpenSwim(swimmer.id, swim.eventId)}
             />
           ))}

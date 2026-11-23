@@ -6,6 +6,7 @@ export { swimmerSchedule } from "./schedule";
 export type { MeetClock, ScheduledSwim, SwimmerSchedule, SwimmerSwim, SwimPhase } from "./schedule";
 export { clubSchedule, searchClubs } from "./clubs";
 export type { ClubHit, ClubSchedule } from "./clubs";
+export type { EntryRank } from "./entryRanks";
 export { swimDetail } from "./swimDetail";
 export type { SplitSegment, SwimDetail } from "./swimDetail";
 export { findSwimmer, swimmerKey } from "./identity";

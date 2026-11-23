@@ -1,5 +1,5 @@
 import { swimDetail, type Meet } from "../meet";
-import { formatDifference, formatReactionTime, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { formatDifference, formatEntryRank, formatReactionTime, formatSwimTime, roundLabel, statusLabel } from "./format";
 
 interface Props {
   meet: Meet;
@@ -52,6 +52,12 @@ export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer }: Prop
             <dd className={detail.differenceFromEntryTime < 0 ? "faster" : "slower"}>
               {formatDifference(detail.differenceFromEntryTime)}
             </dd>
+          </div>
+        )}
+        {detail.entryRank && (
+          <div>
+            <dt>Rang nach Meldezeit</dt>
+            <dd>{formatEntryRank(detail.entryRank)}</dd>
           </div>
         )}
         {detail.reactionTime !== null && (

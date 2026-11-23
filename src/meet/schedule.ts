@@ -1,3 +1,4 @@
+import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, Round, Swimmer, SwimStatus } from "./model";
 
 /** "YYYY-MM-DDTHH:MM" in the meet's local time. */
@@ -27,6 +28,8 @@ export interface ScheduledSwim {
   status: SwimStatus | null;
   /** Meldezeit in hundredths of a second; null without one, and for finals (seeded by prelim times instead). */
   entryTime: number | null;
+  /** Where the entry time ranks; null for finals and entries without a time. */
+  entryRank: EntryRank | null;
   /** Hundredths of a second. */
   swimTime: number | null;
   phase: SwimPhase;
@@ -78,6 +81,7 @@ export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): Ord
             lane: swim.lane,
             status: swim.status,
             entryTime: event.round === "FIN" ? null : swim.entryTime,
+            entryRank: entryRank(meet, swim),
             swimTime: swim.swimTime,
             phase: startOf(session.date, time) < clock ? "done" : "later",
           },
