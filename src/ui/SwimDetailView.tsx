@@ -54,6 +54,20 @@ export function SwimDetailView({ meet, swimmerId, eventId, onOpenSwimmer }: Prop
             </dd>
           </div>
         )}
+        {detail.prelimTime !== null && (
+          <div>
+            <dt>Vorlaufzeit</dt>
+            <dd>{formatSwimTime(detail.prelimTime)}</dd>
+          </div>
+        )}
+        {detail.differenceFromPrelim !== null && (
+          <div>
+            <dt>Differenz zum Vorlauf</dt>
+            <dd className={detail.differenceFromPrelim < 0 ? "faster" : "slower"}>
+              {formatDifference(detail.differenceFromPrelim)}
+            </dd>
+          </div>
+        )}
         {detail.entryRank && (
           <div>
             <dt>Rang nach Meldezeit</dt>

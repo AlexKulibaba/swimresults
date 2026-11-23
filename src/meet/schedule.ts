@@ -1,5 +1,6 @@
 import { entryRank, type EntryRank } from "./entryRanks";
-import type { Meet, Round, Swimmer, SwimStatus } from "./model";
+import type { Meet, MeetEvent, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
+import { finalsOf, prelimIsOver, prelimOf } from "./rounds";
 
 /** "YYYY-MM-DDTHH:MM" in the meet's local time. */
 export type MeetClock = string;
@@ -16,6 +17,8 @@ export interface ScheduledSwim {
   eventNumber: number;
   eventName: string;
   round: Round;
+  /** A final the swimmer may reach: listed until their prelim is over, without heat or lane. */
+  ifQualified: boolean;
   /** ISO date of the session. */
   date: string;
   /** Scheduled start, "HH:MM"; null when the meet file has no time for it. */
@@ -52,47 +55,73 @@ export interface OrderedSwim {
   swim: ScheduledSwim;
 }
 
-/** One swimmer's swims in start order, with their phase relative to the clock. */
+/**
+ * One swimmer's swims in start order, with their phase relative to the clock. Until a prelim is over, its finals
+ * are listed as "if qualified" and the swimmer's actual final is not yet revealed.
+ */
 export function scheduleOf(meet: Meet, swimmerId: string, clock: MeetClock): OrderedSwim[] {
-  const swims = meet.swims
-    .filter((swim) => swim.swimmerId === swimmerId)
-    .flatMap((swim): OrderedSwim[] => {
-      const event = meet.events.find((candidate) => candidate.id === swim.eventId);
-      const session = meet.sessions.find((candidate) => candidate.number === event?.session);
-      if (!event || !session) return [];
-      const heat = event.heats.find((candidate) => candidate.id === swim.heatId);
-      const time = heat?.daytime ?? event.daytime ?? session.daytime;
+  const records = meet.swims.filter((swim) => swim.swimmerId === swimmerId);
+  const swims: OrderedSwim[] = [];
 
-      return [
-        {
-          eventOrder: event.order,
-          swim: {
-            eventId: event.id,
-            club: swim.club,
-            session: session.number,
-            eventNumber: event.number,
-            eventName: event.name,
-            round: event.round,
-            date: session.date,
-            time,
-            timeApproximate: time !== null && !heat?.daytime,
-            heat: heat?.number ?? null,
-            heatCount: event.heats.length,
-            lane: swim.lane,
-            status: swim.status,
-            entryTime: event.round === "FIN" ? null : swim.entryTime,
-            entryRank: entryRank(meet, swim),
-            swimTime: swim.swimTime,
-            phase: startOf(session.date, time) < clock ? "done" : "later",
-          },
-        },
-      ];
-    })
-    .sort(byStartOrder);
+  for (const record of records) {
+    const event = meet.events.find((candidate) => candidate.id === record.eventId);
+    if (!event) continue;
 
-  const next = swims.find(({ swim }) => swim.phase === "later" && swim.status === null);
+    if (event.round === "FIN") {
+      const prelim = prelimOf(meet, event);
+      if (prelim && !prelimIsOver(meet, prelim, clock)) continue;
+    }
+    swims.push(...scheduled(meet, event, record, clock));
+
+    if (event.round === "PRE" && record.status === null && !prelimIsOver(meet, event, clock)) {
+      for (const final of finalsOf(meet, event)) swims.push(...scheduled(meet, final, record, clock, { ifQualified: true }));
+    }
+  }
+  swims.sort(byStartOrder);
+
+  const next = swims.find(({ swim }) => swim.phase === "later" && swim.status === null && !swim.ifQualified);
   if (next) next.swim.phase = "next";
   return swims;
+}
+
+/** The scheduled swim for a record; for a possible final, the record is the prelim and heat and lane are open. */
+function scheduled(
+  meet: Meet,
+  event: MeetEvent,
+  record: SwimRecord,
+  clock: MeetClock,
+  { ifQualified = false } = {},
+): OrderedSwim[] {
+  const session = meet.sessions.find((candidate) => candidate.number === event.session);
+  if (!session) return [];
+  const heat = ifQualified ? event.heats[0] : event.heats.find((candidate) => candidate.id === record.heatId);
+  const time = heat?.daytime ?? event.daytime ?? session.daytime;
+
+  return [
+    {
+      eventOrder: event.order,
+      swim: {
+        eventId: event.id,
+        club: record.club,
+        session: session.number,
+        eventNumber: event.number,
+        eventName: event.name,
+        round: event.round,
+        ifQualified,
+        date: session.date,
+        time,
+        timeApproximate: time !== null && !heat?.daytime,
+        heat: ifQualified ? null : (heat?.number ?? null),
+        heatCount: event.heats.length,
+        lane: ifQualified ? null : record.lane,
+        status: ifQualified ? null : record.status,
+        entryTime: ifQualified || event.round === "FIN" ? null : record.entryTime,
+        entryRank: ifQualified ? null : entryRank(meet, record),
+        swimTime: ifQualified ? null : record.swimTime,
+        phase: startOf(session.date, time) < clock ? "done" : "later",
+      },
+    },
+  ];
 }
 
 /** A scheduled swim together with whose it is, for lists covering several swimmers. */

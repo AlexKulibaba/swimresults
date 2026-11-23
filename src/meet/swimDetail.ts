@@ -1,5 +1,6 @@
 import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, Place, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
+import { prelimOf } from "./rounds";
 
 /** The time between two measured distances of a swim. */
 export interface SplitSegment {
@@ -30,6 +31,10 @@ export interface SwimDetail {
   differenceFromEntryTime: number | null;
   /** Where the entry time ranked; null for finals and entries without a time. */
   entryRank: EntryRank | null;
+  /** For a final: the swimmer's time in the prelim it follows. */
+  prelimTime: number | null;
+  /** For a final: hundredths of a second; negative when faster than in the prelim. */
+  differenceFromPrelim: number | null;
   reactionTime: number | null;
   /** Measured distances up to the finish, in order. */
   splits: SplitSegment[];
@@ -43,7 +48,10 @@ export function swimDetail(meet: Meet, swimmerId: string, eventId: string): Swim
 
   const valid = swim.status === null;
   const swimTime = valid ? swim.swimTime : null;
-  const entryTime = event.round === "FIN" ? originalEntryTime(meet, swim) : swim.entryTime;
+  // A final is seeded with prelim times; the Meldezeit is on the swimmer's prelim entry.
+  const prelim = event.round === "FIN" ? prelimSwim(meet, swim) : null;
+  const entryTime = event.round === "FIN" ? (prelim?.entryTime ?? null) : swim.entryTime;
+  const prelimTime = prelim?.status === null ? prelim.swimTime : null;
 
   return {
     swimmer,
@@ -57,26 +65,18 @@ export function swimDetail(meet: Meet, swimmerId: string, eventId: string): Swim
     entryTime,
     differenceFromEntryTime: swimTime !== null && entryTime !== null ? swimTime - entryTime : null,
     entryRank: entryRank(meet, swim),
+    prelimTime,
+    differenceFromPrelim: swimTime !== null && prelimTime !== null ? swimTime - prelimTime : null,
     reactionTime: swim.reactionTime,
     splits: valid && swimTime !== null ? segments(swim, event.distance, swimTime) : [],
   };
 }
 
-/** A final is seeded with prelim times; the Meldezeit is on the swimmer's entry for the same stroke and distance. */
-function originalEntryTime(meet: Meet, final: SwimRecord): number | null {
+/** The swimmer's own swim in the prelim a final follows. */
+function prelimSwim(meet: Meet, final: SwimRecord): SwimRecord | null {
   const finalEvent = meet.events.find((event) => event.id === final.eventId);
-  const earlier = meet.swims.find((swim) => {
-    const event = meet.events.find((candidate) => candidate.id === swim.eventId);
-    return (
-      swim.swimmerId === final.swimmerId &&
-      event !== undefined &&
-      event.round !== "FIN" &&
-      event.stroke === finalEvent?.stroke &&
-      event.distance === finalEvent?.distance &&
-      swim.entryTime !== null
-    );
-  });
-  return earlier?.entryTime ?? null;
+  const prelim = finalEvent ? prelimOf(meet, finalEvent) : null;
+  return meet.swims.find((swim) => swim.swimmerId === final.swimmerId && swim.eventId === prelim?.id) ?? null;
 }
 
 /** Measured splits plus the finish, each with the time since the previous measured distance. */
