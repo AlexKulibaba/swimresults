@@ -1,6 +1,6 @@
 import { entryRank, type EntryRank } from "./entryRanks";
 import type { Meet, Place, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
-import { eventIsOver, prelimOf } from "./rounds";
+import { awardsMedals, eventIsOver, prelimOf } from "./rounds";
 import { startOfSwim, type MeetClock } from "./schedule";
 
 /** The time between two measured distances of a swim. */
@@ -26,6 +26,7 @@ export interface SwimDetail {
   /** Times from a meet file are official; only live timing would be provisional. */
   official: true;
   places: Place[];
+  awardsMedals: boolean;
   /** The original Meldezeit for this stroke and distance, also for finals. */
   entryTime: number | null;
   /** Hundredths of a second; negative when faster than the entry time. */
@@ -66,6 +67,7 @@ export function swimDetail(meet: Meet, swimmerId: string, eventId: string, clock
     swimTime,
     official: true,
     places: valid && eventIsOver(meet, event, clock) ? swim.places : [],
+    awardsMedals: awardsMedals(meet, event),
     entryTime,
     differenceFromEntryTime: swimTime !== null && entryTime !== null ? swimTime - entryTime : null,
     entryRank: entryRank(meet, swim),

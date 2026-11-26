@@ -45,21 +45,27 @@ const nobody: Follows = { me: null, swimmers: [], clubs: [] };
 const label = (swim: { swimmer: { firstName: string }; eventNumber: number }) => `${swim.swimmer.firstName} Wk ${swim.eventNumber}`;
 
 describe("the home page", () => {
-  test("shows the next swims of followed swimmers and members of followed clubs in start order", () => {
+  test("shows both upcoming swims (in start order) and recent results (most recent first) for followed swimmers and clubs", () => {
     const home = homePage(meet, { me: null, swimmers: ["license:300"], clubs: ["SV Bayer Wuppertal"] }, "2026-11-12T09:15");
 
-    expect({ mode: home.followed?.mode, swims: home.followed?.swims.map(label) }).toEqual({
-      mode: "next",
-      swims: ["Mia Wk 2", "Anna Wk 3", "Lena Wk 3", "Mia Wk 4"],
+    expect({
+      upcoming: home.followed?.upcoming.map(label),
+      recent: home.followed?.recent.map(label),
+    }).toEqual({
+      upcoming: ["Mia Wk 2", "Anna Wk 3", "Lena Wk 3", "Mia Wk 4"],
+      recent: ["Lena Wk 1", "Anna Wk 1"],
     });
   });
 
-  test("shows the latest swims once everyone followed has finished", () => {
+  test("shows only recent swims once everyone followed has finished", () => {
     const home = homePage(meet, { me: null, swimmers: ["license:300", "license:400"], clubs: [] }, "2026-11-12T12:00");
 
-    expect({ mode: home.followed?.mode, swims: home.followed?.swims.map(label) }).toEqual({
-      mode: "latest",
-      swims: ["Lena Wk 3", "Paul Wk 2", "Lena Wk 1"],
+    expect({
+      upcoming: home.followed?.upcoming.map(label),
+      recent: home.followed?.recent.map(label),
+    }).toEqual({
+      upcoming: [],
+      recent: ["Lena Wk 3", "Paul Wk 2", "Lena Wk 1"],
     });
   });
 
@@ -68,10 +74,12 @@ describe("the home page", () => {
 
     expect({
       me: home.me?.swims.map((swim) => `Wk ${swim.eventNumber} ${swim.phase}`),
-      followed: home.followed?.swims.map(label),
+      upcoming: home.followed?.upcoming.map(label),
+      recent: home.followed?.recent.map(label),
     }).toEqual({
       me: ["Wk 1 done", "Wk 3 next"],
-      followed: ["Mia Wk 2", "Lena Wk 3", "Mia Wk 4"],
+      upcoming: ["Mia Wk 2", "Lena Wk 3", "Mia Wk 4"],
+      recent: ["Lena Wk 1"],
     });
   });
 

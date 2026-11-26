@@ -79,6 +79,6 @@ describe("a swimmer entered for more than one club", () => {
   test("following one of the clubs shows only that club's swims", () => {
     const home = homePage(meet, { me: null, swimmers: [], clubs: ["Deutscher Schwimm-Verband"] }, beforeTheMeet);
 
-    expect(home.followed?.swims.map((swim) => swim.eventNumber)).toEqual([2]);
+    expect(home.followed?.upcoming.map((swim) => swim.eventNumber)).toEqual([2]);
   });
 });

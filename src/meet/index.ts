@@ -15,3 +15,7 @@ export { homePage } from "./home";
 export type { Follows, HomePage } from "./home";
 export { comparableSwims, compareSwims } from "./compare";
 export type { ComparedSwim, Comparison, SplitGap, SwimRef } from "./compare";
+export { eventsBySession } from "./events";
+export type { EventState, HeatProgressItem, HeatState, SessionEvents, SessionEventSummary } from "./events";
+export { eventHeats, heatDetail } from "./heats";
+export type { EventHeat, EventHeats, HeatDetail, HeatLane } from "./heats";

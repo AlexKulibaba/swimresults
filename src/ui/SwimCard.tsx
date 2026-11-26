@@ -1,5 +1,7 @@
 import type { ScheduledSwim, Swimmer } from "../meet";
-import { formatDay, formatEntryRank, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { EntryRankDisplay } from "./EntryRankDisplay";
+import { formatDay, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { PlacementDisplay } from "./PlacementDisplay";
 
 interface Props {
   swim: ScheduledSwim;
@@ -68,10 +70,14 @@ export function SwimCard({ swim, swimmer, showClub, showEntryRank, onOpenSwimmer
           </div>
         )}
       </dl>
+      {completed && swim.places.length > 0 && (
+        <div className="swim__rank">
+          <PlacementDisplay places={swim.places} compact medals={swim.awardsMedals} />
+        </div>
+      )}
       {showEntryRank && swim.entryRank && (
         <div className="swim__rank">
-          <span className="muted">Rang nach Meldezeit: </span>
-          {formatEntryRank(swim.entryRank)}
+          <EntryRankDisplay entryRank={swim.entryRank} compact showLabel />
         </div>
       )}
       {swim.phase !== "done" && swim.status && <div className="swim__status">{statusLabel(swim.status)}</div>}

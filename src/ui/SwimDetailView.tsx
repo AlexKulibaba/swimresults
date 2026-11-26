@@ -1,5 +1,7 @@
 import { swimDetail, type Meet, type MeetClock } from "../meet";
-import { formatDifference, formatEntryRank, formatReactionTime, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { EntryRankDisplay } from "./EntryRankDisplay";
+import { formatDifference, formatReactionTime, formatSwimTime, roundLabel, statusLabel } from "./format";
+import { PlacementDisplay } from "./PlacementDisplay";
 
 interface Props {
   meet: Meet;
@@ -36,9 +38,9 @@ export function SwimDetailView({ meet, swimmerId, eventId, clock, onOpenSwimmer,
       </div>
 
       {detail.places.length > 0 && (
-        <p className="places">
-          {detail.places.map((place) => `${place.place}. ${place.group}`).join(" · ")}
-        </p>
+        <div className="places">
+          <PlacementDisplay places={detail.places} medals={detail.awardsMedals} />
+        </div>
       )}
 
       <dl className="swim__facts">
@@ -72,8 +74,10 @@ export function SwimDetailView({ meet, swimmerId, eventId, clock, onOpenSwimmer,
         )}
         {detail.entryRank && (
           <div>
-            <dt>Rang nach Meldezeit</dt>
-            <dd>{formatEntryRank(detail.entryRank)}</dd>
+            <dt>Melderang</dt>
+            <dd>
+              <EntryRankDisplay entryRank={detail.entryRank} compact />
+            </dd>
           </div>
         )}
         {detail.reactionTime !== null && (

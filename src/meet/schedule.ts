@@ -1,6 +1,6 @@
 import { entryRank, type EntryRank } from "./entryRanks";
-import type { Meet, MeetEvent, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
-import { eventIsOver, finalsOf, prelimOf } from "./rounds";
+import type { Meet, MeetEvent, Place, Round, Swimmer, SwimRecord, SwimStatus } from "./model";
+import { awardsMedals, eventIsOver, finalsOf, prelimOf } from "./rounds";
 
 /** "YYYY-MM-DDTHH:MM" in the meet's local time. */
 export type MeetClock = string;
@@ -25,16 +25,21 @@ export interface ScheduledSwim {
   time: string | null;
   /** True when the time is the event's or session's start rather than the heat's. */
   timeApproximate: boolean;
+  heatId: string | null;
   heat: number | null;
   heatCount: number;
   lane: number | null;
   status: SwimStatus | null;
-  /** Meldezeit in hundredths of a second; null without one, and for finals (seeded by prelim times instead). */
+  /** Meldezeit in hundredths of a second; null without one. */
   entryTime: number | null;
   /** Where the entry time ranks; null for finals and entries without a time. */
   entryRank: EntryRank | null;
   /** Hundredths of a second. */
   swimTime: number | null;
+  /** Final placements in the meet's scoring groups; populated once the whole event is over. */
+  places: Place[];
+  /** True when podium medals are awarded in this round (false for prelims that feed into a final). */
+  awardsMedals: boolean;
   phase: SwimPhase;
 }
 
@@ -114,13 +119,16 @@ function scheduled(
         date: session.date,
         time,
         timeApproximate: time !== null && !heat?.daytime,
+        heatId: ifQualified ? null : (heat?.id ?? null),
         heat: ifQualified ? null : (heat?.number ?? null),
         heatCount: event.heats.length,
         lane: ifQualified ? null : record.lane,
         status,
-        entryTime: ifQualified || event.round === "FIN" ? null : record.entryTime,
+        entryTime: record.entryTime,
         entryRank: ifQualified ? null : entryRank(meet, record),
         swimTime: ifQualified || !started ? null : record.swimTime,
+        places: !ifQualified && record.status === null && eventIsOver(meet, event, clock) ? record.places : [],
+        awardsMedals: awardsMedals(meet, event),
         phase: started ? "done" : "later",
       },
     },

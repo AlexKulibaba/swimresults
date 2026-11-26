@@ -334,7 +334,8 @@ describe("entry times in the schedule", () => {
     }),
   );
 
-  test("prelims and timed finals show the entry time; no time stays empty; finals show none", () => {
-    expect(swimmerSchedule(meet, "1", beforeTheMeet)?.swims.map((swim) => swim.entryTime)).toEqual([6233, null, null]);
+  test("prelims, timed finals, and finals show their entry time; no time stays empty", () => {
+    expect(swimmerSchedule(meet, "1", beforeTheMeet)?.swims.map((swim) => swim.entryTime)).toEqual([6233, null, 6233]);
+    expect(swimmerSchedule(meet, "1", "2026-11-12T10:00")?.swims.map((swim) => swim.entryTime)).toEqual([6233, null, 6180]);
   });
 });

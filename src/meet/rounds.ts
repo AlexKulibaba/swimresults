@@ -22,6 +22,17 @@ export function prelimOf(meet: Meet, final: MeetEvent): MeetEvent | null {
   );
 }
 
+/**
+ * Whether final podium medals are awarded directly in this event.
+ * Prelims/semifinals followed by a final determine qualification/seeding rather than medal placements.
+ */
+export function awardsMedals(meet: Meet, event: MeetEvent): boolean {
+  if (event.round === "PRE" || event.round === "SEM") {
+    return finalsOf(meet, event).length === 0;
+  }
+  return true;
+}
+
 /** An event is over once its last heat has started: its places, and for a prelim its finals, are then set. */
 export function eventIsOver(meet: Meet, event: MeetEvent, clock: MeetClock): boolean {
   const session = meet.sessions.find((candidate) => candidate.number === event.session);

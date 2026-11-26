@@ -130,7 +130,7 @@ describe("a replay shows only what was known at the replay time", () => {
   test("before the prelim: the home page shows Anna's next swim without any result", () => {
     const home = homePage(meet, { me: null, swimmers: ["license:100"], clubs: [] }, beforeThePrelim);
 
-    expect(home.followed?.swims.map(({ eventNumber, swimTime, phase }) => ({ eventNumber, swimTime, phase }))).toEqual([
+    expect(home.followed?.upcoming.map(({ eventNumber, swimTime, phase }) => ({ eventNumber, swimTime, phase }))).toEqual([
       { eventNumber: 1, swimTime: null, phase: "next" },
       { eventNumber: 101, swimTime: null, phase: "later" },
     ]);
